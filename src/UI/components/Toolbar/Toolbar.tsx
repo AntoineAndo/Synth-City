@@ -23,7 +23,9 @@ export const Toolbar = () => {
             {!category.children ? (
               <button
                 onClick={() => setSelectedTool(category.toolName)}
-                className={currentTool === category.toolName ? "active" : ""}
+                className={`${styles.button} ${
+                  currentTool === category.toolName ? styles.active : ""
+                }`}
               >
                 {category.label}
               </button>
@@ -38,9 +40,9 @@ export const Toolbar = () => {
                     <li key={child.id}>
                       <button
                         onClick={() => setSelectedTool(child.toolName)}
-                        className={
-                          currentTool === child.toolName ? "active" : ""
-                        }
+                        className={`${styles.button} ${
+                          currentTool === child.toolName ? styles.active : ""
+                        }`}
                       >
                         {child.label}
                       </button>
