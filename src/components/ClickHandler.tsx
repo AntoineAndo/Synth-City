@@ -24,6 +24,7 @@ function ClickHandler({
   setPreviewPath,
 }: Props) {
   const selectedTool = useGameStore((state) => state.selectedTool);
+  const setSelectedTool = useGameStore((state) => state.setSelectedTool);
   const map = useGameStore((state) => state.map);
   const tools = useGameStore((state) => state.tools);
 
@@ -33,6 +34,9 @@ function ClickHandler({
     (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "r" && tools[selectedTool]) {
         tools[selectedTool].handleKeyPress(e);
+      } else if (e.key.toLowerCase() === "escape") {
+        // set selected tool to cursor
+        setSelectedTool("CURSOR");
       }
     },
     [tools, selectedTool]

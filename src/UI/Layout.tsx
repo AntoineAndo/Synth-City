@@ -21,7 +21,7 @@ function UI() {
     >
       <div style={{ pointerEvents: "none", display: "flex", gap: "20px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* <Metrics /> */}
+          <Metrics />
           {selectedBuilding && (
             <div style={{ display: "flex", flexDirection: "column" }}>
               <h3>Selected building</h3>
