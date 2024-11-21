@@ -42,9 +42,9 @@ export class MetricsManager {
     {
       // UnworkingPeople
       // Decrease happiness based on unemployment rate
-      condition: (metrics) =>
-        metrics.inhabitants > metrics.workingPeople &&
-        metrics.inhabitants == metrics.inhabitantsCapacity,
+      condition: (metrics) => true,
+      // metrics.inhabitants > metrics.workingPeople &&
+      // metrics.inhabitants == metrics.inhabitantsCapacity,
       modifiers: [
         {
           target: "happiness",
