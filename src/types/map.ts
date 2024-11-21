@@ -1,6 +1,7 @@
 import { Building } from "../config/Buildings/Building";
 import { BuildingConfig } from "../config/buildingsConfig";
 import { ModelConfig } from "../config/models";
+import { EffectType } from "../store/gameStore";
 
 export const CellTypes = {
   GRASS: {
@@ -40,6 +41,7 @@ export interface BuildingInterface {
   config: BuildingConfig;
   inhabitants: number;
   workers: number;
+  effects: Record<EffectType, number>;
 }
 
 export type Map = {

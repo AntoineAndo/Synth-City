@@ -1,8 +1,19 @@
+import { EffectType } from "../../store/gameStore";
 import { BuildingType } from "../../types/buildings";
 import { BuildingInterface } from "../../types/map";
 import { BuildingConfig, BUILDINGS_CONFIG } from "../buildingsConfig";
 import { MODELS } from "../models";
 import { ModelConfig } from "../models";
+
+type BuildingProps = {
+  id: string;
+  position: [number, number];
+  size: number;
+  rotation: number;
+  buildingType: BuildingType;
+  buildingCells: [number, number][];
+  effects: Record<EffectType, number>;
+};
 
 export class Building implements BuildingInterface {
   id: string;
@@ -20,7 +31,9 @@ export class Building implements BuildingInterface {
 
   // effectRadius: number;
   config: BuildingConfig;
-
+  effects: Record<EffectType, number> = {
+    FUN: 0,
+  };
   constructor({
     id,
     position,
@@ -28,6 +41,7 @@ export class Building implements BuildingInterface {
     rotation,
     buildingType,
     buildingCells,
+    effects,
   }: BuildingProps) {
     this.id = id;
     this.position = position;
@@ -36,7 +50,7 @@ export class Building implements BuildingInterface {
     this.level = 0;
     this.buildingType = buildingType;
     this.buildingCells = buildingCells;
-
+    this.effects = effects;
     // this.effectRadius = BUILDINGS_CONFIG[buildingType].effect?.radius ?? 0;
     this.config = BUILDINGS_CONFIG[buildingType];
 
@@ -53,12 +67,3 @@ export function getModelNameForBuildingType(
 ): ModelConfig {
   return MODELS[buildingType];
 }
-
-type BuildingProps = {
-  id: string;
-  position: [number, number];
-  size: number;
-  rotation: number;
-  buildingType: BuildingType;
-  buildingCells: [number, number][];
-};

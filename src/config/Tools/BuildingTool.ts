@@ -4,6 +4,7 @@ import { EffectType, GameStore } from "../../store/gameStore";
 import { BuildingType } from "../../types/buildings";
 import { BUILDINGS_CLASSES, BUILDINGS_CONFIG } from "../buildingsConfig";
 import { getEffectCircle } from "../../components/MapBuilder";
+import { Building } from "../Buildings/Building";
 
 export class BuildingTool implements Tool {
   public cell: [number, number] | null = null;
@@ -42,10 +43,21 @@ export class BuildingTool implements Tool {
   ) => {
     if (!this.cell || !previewPath?.length) return;
 
-    this.placeBuilding([i, j], previewPath);
+    const buildingCells: [number, number][] = [];
+    for (let x = 0; x < this.size; x++) {
+      for (let z = 0; z < this.size; z++) {
+        buildingCells.push([i + x, j + z]);
+      }
+    }
+
+    const effectMaps = this.gameStore.getEffectMaps();
+
+    let effectValues: Record<EffectType, number> = {
+      FUN: 0,
+    };
 
     if (this.effect) {
-      const effectMap = this.gameStore.getEffectMaps()[this.effect.type];
+      const effectMap = effectMaps[this.effect.type];
       if (effectMap) {
         // Get the effect circle
         const effectCells: [number, number][] = getEffectCircle(
@@ -67,29 +79,23 @@ export class BuildingTool implements Tool {
       }
     }
 
-    const metrics = this.gameStore.getMetrics();
-
-    const newMoney =
-      metrics.money - BUILDINGS_CONFIG[this.buildingType].price[0];
-
-    const newCapacity =
-      metrics.inhabitantsCapacity +
-      BUILDINGS_CONFIG[this.buildingType].inhabitantsCapacity[0];
-
-    const newWorkingCapacity =
-      metrics.workingCapacity +
-      BUILDINGS_CONFIG[this.buildingType].workingCapacity[0];
-
-    const newRawIncome =
-      metrics.rawIncome + BUILDINGS_CONFIG[this.buildingType].income[0];
-
-    this.gameStore.setMetrics({
-      ...metrics,
-      money: newMoney,
-      inhabitantsCapacity: newCapacity,
-      workingCapacity: newWorkingCapacity,
-      rawIncome: newRawIncome,
+    // CHeck if the building is in the effect zone
+    buildingCells.forEach((cell) => {
+      Object.keys(effectMaps).forEach((effectType) => {
+        const effectMap = effectMaps[effectType as EffectType];
+        if (effectMap && effectMap[cell[0]][cell[1]] === 1) {
+          // Apply the effect of the building
+          console.log("in effect");
+          effectValues[effectType as EffectType] = 1;
+        }
+      });
     });
+
+    // Place building
+    this.placeBuilding([i, j], buildingCells, effectValues, previewPath);
+
+    // Update metrics
+    this.updateMetrics();
 
     this.cell = null;
   };
@@ -161,6 +167,8 @@ export class BuildingTool implements Tool {
 
   public placeBuilding = (
     cell: [number, number],
+    buildingCells: [number, number][],
+    effectValues: Record<EffectType, number>,
     previewPath?: [number, number][]
   ) => {
     const buildingId = Math.random().toString(36).substring(2, 15);
@@ -185,13 +193,6 @@ export class BuildingTool implements Tool {
     );
     map.cells = cells;
 
-    let buildingCells: [number, number][] = [];
-    for (let i = 0; i < this.size; i++) {
-      for (let j = 0; j < this.size; j++) {
-        buildingCells.push([cell[0] + i, cell[1] + j]);
-      }
-    }
-
     const buildings = {
       ...map.buildings,
       [buildingId]: new BUILDINGS_CLASSES[this.buildingType]({
@@ -201,6 +202,7 @@ export class BuildingTool implements Tool {
         rotation: this.rotation,
         buildingType: this.buildingType,
         buildingCells,
+        effects: effectValues,
       }),
     };
 
@@ -208,6 +210,40 @@ export class BuildingTool implements Tool {
       ...map,
       buildings,
     });
+  };
+
+  public updateMetrics = () => {
+    const metrics = this.gameStore.getMetrics();
+
+    const newMoney =
+      metrics.money - BUILDINGS_CONFIG[this.buildingType].price[0];
+
+    const newCapacity =
+      metrics.inhabitantsCapacity +
+      BUILDINGS_CONFIG[this.buildingType].inhabitantsCapacity[0];
+
+    const newWorkingCapacity =
+      metrics.workingCapacity +
+      BUILDINGS_CONFIG[this.buildingType].workingCapacity[0];
+
+    const newRawIncome =
+      metrics.rawIncome + BUILDINGS_CONFIG[this.buildingType].income[0];
+
+    this.gameStore.setMetrics({
+      ...metrics,
+      money: newMoney,
+      inhabitantsCapacity: newCapacity,
+      workingCapacity: newWorkingCapacity,
+      rawIncome: newRawIncome,
+    });
+  };
+
+  /**
+   * Recompute all the effects
+   * @param building
+   */
+  public static computeEffects = (building: Building) => {
+    // const effectMaps = this.gameStore.getEffectMaps();
   };
 
   public handleKeyPress = (e: KeyboardEvent) => {

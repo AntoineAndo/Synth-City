@@ -27,20 +27,12 @@ function GameLoop({}: Props) {
       // Apply metric relationships and constraints
       metrics = MetricsManager.updateMetrics(metrics, map);
 
-      buildings = MetricsManager.updateBuildings(buildings, metrics);
-
-      // Object.values(map.buildings).forEach((building: Building) => {
-      // Object.values(effectMaps).forEach((effectMap) => {
-      //   // Check if the building is in the effect map
-      //   building.buildingCells.forEach((cell) => {
-      //     console.log(building);
-      //     if (effectMap[cell[0]][cell[1]] === 1) {
-      //       // Apply the effect of the building
-      //       console.log("in effect");
-      //     }
-      //   });
-      // });
-      // });
+      buildings = MetricsManager.updateBuildings(
+        buildings,
+        metrics,
+        map,
+        effectMaps
+      );
 
       metrics.inhabitants = Object.values(buildings).reduce(
         (acc, building) => acc + building.inhabitants,

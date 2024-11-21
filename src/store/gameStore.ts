@@ -8,7 +8,7 @@ import { GameMetrics } from "../types/metrics";
 import { createCursorToolConfig } from "../config/Tools/CursorTool";
 import { Building } from "../config/Buildings/Building";
 
-export type EffectType = "FUN" | "ECONOMY" | "ATTRACTIVENESS";
+export type EffectType = "FUN";
 
 export type EffectMaps = Partial<{
   [key in EffectType]: number[][];

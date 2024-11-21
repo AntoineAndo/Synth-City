@@ -1,3 +1,5 @@
+import { Building } from "../config/Buildings/Building";
+import { EffectMaps } from "../store/gameStore";
 import { Map } from "./map";
 
 export interface GameMetrics {
@@ -22,6 +24,17 @@ export interface MetricModifier {
 export interface MetricThreshold {
   condition: (metrics: GameMetrics, map: Map) => boolean;
   modifiers: MetricModifier[];
+  description: string;
+}
+
+export interface BuildingMetricThreshold {
+  condition: (
+    building: Building,
+    metrics?: GameMetrics,
+    map?: Map,
+    effectMaps?: EffectMaps
+  ) => boolean;
+  action: (building: Building, metrics: GameMetrics) => void;
   description: string;
 }
 

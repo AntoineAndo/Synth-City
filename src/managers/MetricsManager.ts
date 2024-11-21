@@ -1,6 +1,11 @@
 import { Building } from "../config/Buildings/Building";
+import { EffectMaps } from "../store/gameStore";
 import { Map } from "../types/map";
-import { GameMetrics, MetricThreshold } from "../types/metrics";
+import {
+  BuildingMetricThreshold,
+  GameMetrics,
+  MetricThreshold,
+} from "../types/metrics";
 
 export const MetricsWeight = {
   happiness: {
@@ -10,13 +15,24 @@ export const MetricsWeight = {
 };
 
 export class MetricsManager {
-  private static houseMetrics: any[] = [
+  private static houseMetrics: BuildingMetricThreshold[] = [
     {
-      condition: (building: Building, metrics: GameMetrics) =>
+      condition: (building, metrics) =>
         building.inhabitants <
         building.config.inhabitantsCapacity[building.level],
       action: (building: Building, metrics: GameMetrics) => {
         building.inhabitants += 1;
+      },
+      description: "House metrics",
+    },
+    {
+      condition: (building, metrics, _, effectMaps) => {
+        if (!effectMaps) return false;
+
+        return building?.effects?.FUN < 0.5;
+      },
+      action: (building: Building, metrics: GameMetrics) => {
+        // building.inhabitants += 1;
       },
       description: "House metrics",
     },
@@ -123,11 +139,13 @@ export class MetricsManager {
 
   static updateBuildings(
     buildings: Record<string, Building>,
-    metrics: GameMetrics
+    metrics: GameMetrics,
+    map: Map,
+    effectMaps: EffectMaps
   ): Record<string, Building> {
     Object.values(buildings).forEach((building) => {
       this.houseMetrics.forEach((metric) => {
-        if (metric.condition(building, metrics)) {
+        if (metric.condition(building, metrics, map, effectMaps)) {
           metric.action(building, metrics);
         }
       });
