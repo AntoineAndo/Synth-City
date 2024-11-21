@@ -1,4 +1,4 @@
-import { Building } from "../config/Buildings/Building";
+import { Building } from "../classes/Building";
 import { EffectMaps } from "../store/gameStore";
 import { Map } from "./map";
 

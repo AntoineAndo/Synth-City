@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { Tool, ToolType } from "../types/tools";
-import { Cell, Map } from "../types/map";
+import { Cell, CellTypes, Map } from "../types/map";
 import { createRoadToolConfig } from "../config/Tools/RoadTool";
 import { createBuildingToolConfig } from "../config/Tools/BuildingTool";
 import { TextureCollection } from "../assets/textures";
 import { GameMetrics } from "../types/metrics";
 import { createCursorToolConfig } from "../config/Tools/CursorTool";
-import { Building } from "../config/Buildings/Building";
+import { Building } from "../classes/Building";
 
 export type EffectType = "FUN";
 
@@ -109,11 +109,7 @@ function generateInitialConfig(gridSize: number): Map {
 function generateEmptyGrid(gridSize: number): Cell[][] {
   return Array.from({ length: gridSize }, () => {
     return Array.from({ length: gridSize }, () => ({
-      type: {
-        name: "grass",
-        color: "lightgreen",
-        hoverColor: "green",
-      },
+      type: CellTypes.GRASS,
       height: 0,
     }));
   });

@@ -11,7 +11,7 @@ export const Toolbar = () => {
 
   return (
     <ul className={styles.toolbar}>
-      {toolbarConfig.children.map((category: any) => {
+      {toolbarConfig.map((category: any) => {
         return (
           <li
             id={category.id}

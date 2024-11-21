@@ -1,6 +1,6 @@
 import { useGameStore } from "../store/gameStore";
 import Model3D from "./Model3D";
-import { Building } from "../config/Buildings/Building";
+import { Building } from "../classes/Building";
 
 const Buildings = () => {
   const map = useGameStore((state) => state.map);

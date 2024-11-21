@@ -1,29 +1,39 @@
-import { Building } from "../config/Buildings/Building";
+import { Building } from "../classes/Building";
 import { BuildingConfig } from "../config/buildingsConfig";
 import { ModelConfig } from "../config/models";
 import { EffectType } from "../store/gameStore";
 
-export const CellTypes = {
+export enum EnumCellTypes {
+  GRASS = "GRASS",
+  ROAD = "ROAD",
+  BUILDING = "BUILDING",
+}
+
+export type CellType = {
+  name: string;
+  color: string;
+  hoverColor: string;
+};
+
+export const CellTypes: Record<EnumCellTypes, CellType> = {
   GRASS: {
-    name: "grass" as const,
-    color: "lightgreen" as const,
-    hoverColor: "green" as const,
+    name: "grass",
+    color: "lightgreen",
+    hoverColor: "green",
   },
   ROAD: {
-    name: "road" as const,
-    color: "orange" as const,
-    hoverColor: "red" as const,
+    name: "road",
+    color: "orange",
+    hoverColor: "red",
   },
   BUILDING: {
-    name: "building" as const,
-    color: "lightgreen" as const,
-    hoverColor: "purple" as const,
+    name: "building",
+    color: "lightgreen",
+    hoverColor: "purple",
   },
-} as const;
+};
 
-export type CellType = (typeof CellTypes)[keyof typeof CellTypes];
-
-export type Cell = {
+export type CellInfo = {
   type: CellType;
   height: number;
   buildingId?: string;
@@ -37,7 +47,6 @@ export interface BuildingInterface {
   padding: number;
   level: number;
   rotation: number;
-  // effectRadius: number;
   config: BuildingConfig;
   inhabitants: number;
   workers: number;
@@ -45,11 +54,8 @@ export interface BuildingInterface {
 }
 
 export type Map = {
-  cells: Cell[][];
-  buildings: Record<string, Building>;
+  cells: CellInfo[][];
+  buildings: MapBuilding;
 };
 
-export interface BuildingConstructor {
-  new (...args: any[]): BuildingInterface; // Constructor signature
-  income: number[]; // Static property
-}
+export type MapBuilding = Record<string, Building>;

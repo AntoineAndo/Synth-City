@@ -1,10 +1,10 @@
-import { Cell } from "../../types/map";
-import { Tool, ToolType } from "../../types/tools";
+import { CellInfo, CellTypes } from "../../types/map";
+import { Tool } from "../../types/tools";
 import { EffectType, GameStore } from "../../store/gameStore";
 import { BuildingType } from "../../types/buildings";
 import { BUILDINGS_CLASSES, BUILDINGS_CONFIG } from "../buildingsConfig";
 import { getEffectCircle } from "../../components/MapBuilder";
-import { Building } from "../Buildings/Building";
+import { Building } from "../../classes/Building";
 
 export class BuildingTool implements Tool {
   public cell: [number, number] | null = null;
@@ -176,17 +176,14 @@ export class BuildingTool implements Tool {
     const map = this.gameStore.getMap();
 
     // Change the type of the cells to building
-    const cells: Cell[][] = map.cells.map((row, i) =>
+    // And set the buildingId in the cells
+    const cells: CellInfo[][] = map.cells.map((row, i) =>
       row.map((cell, j) =>
         previewPath?.some(([x, y]) => x === i && y === j)
           ? {
               ...cell,
               buildingId,
-              type: {
-                name: "building",
-                color: "lightgreen",
-                hoverColor: "purple",
-              },
+              type: CellTypes.BUILDING,
             }
           : cell
       )

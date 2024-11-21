@@ -2,7 +2,6 @@ import { useGameStore } from "../../../store/gameStore";
 
 export const Metrics = () => {
   const metrics = useGameStore((state) => state.metrics);
-  const selectedBuilding = useGameStore((state) => state.selectedBuilding);
 
   return (
     <ul>

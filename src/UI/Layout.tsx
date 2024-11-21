@@ -5,7 +5,6 @@ import { Metrics } from "./components/Metrics/Metrics";
 import BuildingInfo from "./components/BuildingInfo/BuildingInfo";
 
 function UI() {
-  const metrics = useGameStore((state) => state.metrics);
   const selectedBuilding = useGameStore((state) => state.selectedBuilding);
 
   return (

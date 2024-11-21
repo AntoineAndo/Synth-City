@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "../store/gameStore";
 import React from "react";
 import { MetricsManager } from "../managers/MetricsManager";
-import { Building } from "../config/Buildings/Building";
+import { Building } from "../classes/Building";
 
 type Props = {};
 

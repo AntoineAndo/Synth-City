@@ -1,5 +1,5 @@
 import { useGameStore } from "../../../store/gameStore";
-import { Building } from "../../../config/Buildings/Building";
+import { Building } from "../../../classes/Building";
 
 type Props = {};
 

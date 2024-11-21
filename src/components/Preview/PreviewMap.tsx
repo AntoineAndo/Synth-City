@@ -1,7 +1,7 @@
 import { PreviewCell } from "./PreviewCell";
 import { Map } from "../../types/map";
 import { EdgesGeometry, LineBasicMaterial, PlaneGeometry } from "three";
-import { Building } from "../../config/Buildings/Building";
+import { Building } from "../../classes/Building";
 
 function PreviewMap({
   map,

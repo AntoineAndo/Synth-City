@@ -1,4 +1,4 @@
-import { Building } from "../config/Buildings/Building";
+import { Building } from "../classes/Building";
 import { EffectType, GameStore } from "../store/gameStore";
 import { BuildingType } from "./buildings";
 
@@ -42,41 +42,47 @@ export const TOOLS = {
 
 export type ToolType = (typeof TOOLS)[keyof typeof TOOLS];
 
-export const toolbarConfig = {
-  children: [
-    {
-      id: "cursor",
-      label: "Cursor",
-      toolName: TOOLS.CURSOR,
-    },
-    {
-      id: "road",
-      label: "Road",
-      toolName: TOOLS.ROAD,
-    },
-    {
-      id: "buildings",
-      label: "Buildings",
-      children: [
-        {
-          id: "house",
-          label: "House",
-          toolName: TOOLS.HOUSE,
-          buildingClass: Building,
-        },
-        {
-          id: "office",
-          label: "Office",
-          toolName: TOOLS.OFFICE,
-          buildingClass: Building,
-        },
-        {
-          id: "ice_cream",
-          label: "Ice Cream",
-          toolName: TOOLS.ICE_CREAM,
-          buildingClass: Building,
-        },
-      ],
-    },
-  ],
-};
+export interface ToolbarItem {
+  id: string;
+  label: string;
+  toolName?: ToolType;
+  children?: ToolbarItem[];
+  [key: string]: any;
+}
+
+export const toolbarConfig: ToolbarItem[] = [
+  {
+    id: "cursor",
+    label: "Cursor",
+    toolName: TOOLS.CURSOR,
+  },
+  {
+    id: "road",
+    label: "Road",
+    toolName: TOOLS.ROAD,
+  },
+  {
+    id: "buildings",
+    label: "Buildings",
+    children: [
+      {
+        id: "house",
+        label: "House",
+        toolName: TOOLS.HOUSE,
+        buildingClass: Building,
+      },
+      {
+        id: "office",
+        label: "Office",
+        toolName: TOOLS.OFFICE,
+        buildingClass: Building,
+      },
+      {
+        id: "ice_cream",
+        label: "Ice Cream",
+        toolName: TOOLS.ICE_CREAM,
+        buildingClass: Building,
+      },
+    ],
+  },
+];

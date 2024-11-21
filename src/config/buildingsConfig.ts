@@ -1,6 +1,6 @@
 import { EffectType } from "../store/gameStore";
 import { BuildingType } from "../types/buildings";
-import { Building } from "./Buildings/Building";
+import { Building } from "../classes/Building";
 
 export const BUILDINGS_CLASSES = {
   HOUSE: Building,
