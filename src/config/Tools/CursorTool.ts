@@ -31,7 +31,6 @@ export class CursorTool implements Tool {
     if (!this.cell) return;
 
     const map = this.gameStore.getMap();
-
     const cell = map.cells[this.cell[0]][this.cell[1]];
 
     // Update the selected building

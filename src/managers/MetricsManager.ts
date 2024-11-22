@@ -30,7 +30,6 @@ export class MetricsManager {
         return building.buildingType === "HOUSE";
       },
       action: (building: Building, _: GameMetrics) => {
-        // building.inhabitants += 1;
         let baseValue = 100;
         let newValue = baseValue;
         if (building?.effects?.FUN < 0.5) {
@@ -43,28 +42,6 @@ export class MetricsManager {
   ];
 
   private static thresholds: MetricThreshold[] = [
-    {
-      // UnworkingPeople
-      // Decrease happiness based on unemployment rate
-      condition: (metrics) => true,
-      // metrics.inhabitants > metrics.workingPeople &&
-      // metrics.inhabitants == metrics.inhabitantsCapacity,
-      modifiers: [
-        {
-          target: "happiness",
-          value: (metrics, buildings) => {
-            return (
-              buildings.reduce((acc, building) => {
-                return acc + building.happiness;
-              }, 0) / metrics.inhabitants
-            );
-          },
-          reason: "Unemployment affecting happiness",
-          operation: "replace",
-        },
-      ],
-      description: "Unemployment impact on happiness",
-    },
     {
       // Not enough workers
       // If the number of employed people is less than the number of offices

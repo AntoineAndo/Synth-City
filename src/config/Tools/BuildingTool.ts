@@ -92,7 +92,7 @@ export class BuildingTool implements Tool {
       }
     }
 
-    // CHeck if the building is in the effect zone
+    // Check if the building is in the effect zone
     buildingCells.forEach((cell) => {
       Object.keys(effectMaps).forEach((effectType) => {
         const effectMap = effectMaps[effectType as EffectType];
@@ -202,6 +202,7 @@ export class BuildingTool implements Tool {
     );
     map.cells = cells;
 
+    // Create the building and add it to the map's buildings
     const buildings = {
       ...map.buildings,
       [buildingId]: new BUILDINGS_CLASSES[this.buildingType]({

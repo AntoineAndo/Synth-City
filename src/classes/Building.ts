@@ -5,7 +5,7 @@ import { BuildingConfig, BUILDINGS_CONFIG } from "../config/buildingsConfig";
 import { MODELS } from "../config/models";
 import { ModelConfig } from "../config/models";
 
-type BuildingProps = {
+export type BuildingProps = {
   id: string;
   position: [number, number];
   size: number;
@@ -13,6 +13,7 @@ type BuildingProps = {
   buildingType: BuildingType;
   buildingCells: [number, number][];
   effects: Record<EffectType, number>;
+  [key: string]: any;
 };
 
 export class Building implements BuildingInterface {
@@ -30,7 +31,6 @@ export class Building implements BuildingInterface {
   workers: number = 0;
   happiness: number = 0;
 
-  // effectRadius: number;
   config: BuildingConfig;
   effects: Record<EffectType, number> = {
     FUN: 0,

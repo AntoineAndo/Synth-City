@@ -1,9 +1,10 @@
 import { EffectType } from "../store/gameStore";
 import { BuildingType } from "../types/buildings";
 import { Building } from "../classes/Building";
+import { HousingBuilding } from "../classes/HousingBuilding";
 
 export const BUILDINGS_CLASSES = {
-  HOUSE: Building,
+  HOUSE: HousingBuilding,
   OFFICE: Building,
   ICE_CREAM: Building,
 };
