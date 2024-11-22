@@ -50,6 +50,7 @@ export interface BuildingInterface {
   config: BuildingConfig;
   inhabitants: number;
   workers: number;
+  happiness: number;
   effects: Record<EffectType, number>;
 }
 

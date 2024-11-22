@@ -28,6 +28,7 @@ export class Building implements BuildingInterface {
 
   inhabitants: number = 0;
   workers: number = 0;
+  happiness: number = 0;
 
   // effectRadius: number;
   config: BuildingConfig;

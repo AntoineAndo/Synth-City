@@ -76,6 +76,19 @@ export class BuildingTool implements Tool {
           ...this.gameStore.getEffectMaps(),
           [this.effect.type]: effectMap,
         });
+
+        // Recompute the effects value for all the buildings
+        // This is only necessary when an effect building is placed
+        const newBuildings = BuildingTool.computeEffects(
+          this.gameStore.getMap().buildings,
+          this.effect!.type,
+          effectMap
+        );
+
+        this.gameStore.setMap({
+          ...this.gameStore.getMap(),
+          buildings: newBuildings,
+        });
       }
     }
 
@@ -85,7 +98,6 @@ export class BuildingTool implements Tool {
         const effectMap = effectMaps[effectType as EffectType];
         if (effectMap && effectMap[cell[0]][cell[1]] === 1) {
           // Apply the effect of the building
-          console.log("in effect");
           effectValues[effectType as EffectType] = 1;
         }
       });
@@ -239,8 +251,35 @@ export class BuildingTool implements Tool {
    * Recompute all the effects
    * @param building
    */
-  public static computeEffects = (building: Building) => {
-    // const effectMaps = this.gameStore.getEffectMaps();
+  public static computeEffects = (
+    buildings: Record<string, Building>,
+    effectType: EffectType,
+    effectMap: number[][]
+  ): Record<string, Building> => {
+    Object.values(buildings).forEach((building) => {
+      const buildingCells: [number, number][] = [];
+      for (let x = 0; x < building.size; x++) {
+        for (let z = 0; z < building.size; z++) {
+          buildingCells.push([
+            building.position[0] + x,
+            building.position[1] + z,
+          ]);
+        }
+      }
+
+      const effects = {
+        FUN: 0,
+      };
+
+      buildingCells.forEach((cell) => {
+        if (effectMap[cell[0]][cell[1]] === 1) {
+          effects[effectType] = effectMap[cell[0]][cell[1]];
+        }
+      });
+
+      building.effects = effects;
+    });
+    return buildings;
   };
 
   public handleKeyPress = (e: KeyboardEvent) => {

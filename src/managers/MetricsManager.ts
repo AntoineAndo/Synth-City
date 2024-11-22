@@ -26,15 +26,19 @@ export class MetricsManager {
       description: "House metrics",
     },
     {
-      condition: (building, metrics, _, effectMaps) => {
-        if (!effectMaps) return false;
-
-        return building?.effects?.FUN < 0.5;
+      condition: (building, _, __, ___) => {
+        return building.buildingType === "HOUSE";
       },
-      action: (building: Building, metrics: GameMetrics) => {
+      action: (building: Building, _: GameMetrics) => {
         // building.inhabitants += 1;
+        let baseValue = 100;
+        let newValue = baseValue;
+        if (building?.effects?.FUN < 0.5) {
+          newValue = baseValue / 2;
+        }
+        building.happiness = newValue * building.inhabitants;
       },
-      description: "House metrics",
+      description: "Happiness from fun",
     },
   ];
 
@@ -48,13 +52,12 @@ export class MetricsManager {
       modifiers: [
         {
           target: "happiness",
-          value: (metrics) => {
-            const unemploymentRate =
-              (metrics.inhabitants - metrics.workingPeople) /
-              metrics.inhabitants;
-            // Convert to a percentage and make it negative
-            // Multiply by 20 to make the effect stronger (adjust this multiplier as needed)
-            return 100 * (1 - unemploymentRate);
+          value: (metrics, buildings) => {
+            return (
+              buildings.reduce((acc, building) => {
+                return acc + building.happiness;
+              }, 0) / metrics.inhabitants
+            );
           },
           reason: "Unemployment affecting happiness",
           operation: "replace",
@@ -91,21 +94,6 @@ export class MetricsManager {
       ],
       description: "Low happiness causing population decline",
     },
-    // {
-    //   // Population growth
-    //   // If the number of actual inhabitants is less than the capacity of the city
-    //   // Increase the number of inhabitants
-    //   condition: (metrics) => metrics.inhabitants < metrics.inhabitantsCapacity,
-    //   modifiers: [
-    //     {
-    //       target: "inhabitants",
-    //       value: 1,
-    //       reason: "New inhabitants",
-    //       operation: "add",
-    //     },
-    //   ],
-    //   description: "Population growth",
-    // },
     {
       // Recruitment
       // If the number of inhabitants is more than the number of employed people
@@ -159,11 +147,11 @@ export class MetricsManager {
 
     // Apply thresholds one by one, updating metrics after each
     for (const threshold of this.thresholds) {
-      if (threshold.condition(newMetrics, map)) {
+      if (threshold.condition(newMetrics)) {
         threshold.modifiers.forEach((modifier) => {
           const value =
             typeof modifier.value === "function"
-              ? modifier.value(newMetrics)
+              ? modifier.value(newMetrics, Object.values(map.buildings))
               : modifier.value;
 
           switch (modifier.operation) {

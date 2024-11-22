@@ -16,13 +16,13 @@ export interface GameMetrics {
 
 export interface MetricModifier {
   target: keyof GameMetrics;
-  value: number | ((metrics: GameMetrics) => number);
+  value: number | ((metrics: GameMetrics, buildings: Building[]) => number);
   reason: string;
   operation: MetricOperation;
 }
 
 export interface MetricThreshold {
-  condition: (metrics: GameMetrics, map: Map) => boolean;
+  condition: (metrics: GameMetrics) => boolean;
   modifiers: MetricModifier[];
   description: string;
 }
