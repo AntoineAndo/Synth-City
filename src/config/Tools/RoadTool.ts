@@ -1,5 +1,5 @@
-import { GameStore, useGameStore } from "../../store/gameStore";
-import { Cell, CellType, Map } from "../../types/map";
+import { GameStore } from "../../store/gameStore";
+import { CellInfo, CellType, Map } from "../../types/map";
 import { Tool } from "../../types/tools";
 
 // Helper function to draw an L-shaped path between two points
@@ -186,7 +186,7 @@ function updateCells(
   cells: [number, number][],
   cellType: CellType
 ): {
-  cells: Cell[][];
+  cells: CellInfo[][];
   ignored: number;
 } {
   let ignored = 0;

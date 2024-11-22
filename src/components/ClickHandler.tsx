@@ -30,6 +30,13 @@ function ClickHandler({
 
   const [isDragging, setIsDragging] = useState(false);
 
+  const unsetPreviewPath = () => {
+    setPreviewPath({
+      path: [],
+      isValid: null,
+    });
+  };
+
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "r" && tools[selectedTool]) {
@@ -69,10 +76,11 @@ function ClickHandler({
       if (!hoveredCell || !tools[selectedTool]) return;
 
       setIsDragging(false);
-      setPreviewPath({
-        path: [],
-        isValid: null,
-      });
+      if (previewPath.isValid === false) {
+        unsetPreviewPath();
+        return;
+      }
+      unsetPreviewPath();
 
       if (pointerType === "primary") {
         tools[selectedTool].onPointerUp?.(
@@ -92,10 +100,7 @@ function ClickHandler({
 
   const handlePointerOut = useCallback(() => {
     setIsDragging(false);
-    setPreviewPath({
-      path: [],
-      isValid: null,
-    });
+    unsetPreviewPath();
     setHoveredCell(null);
   }, []);
 
@@ -189,7 +194,6 @@ function ClickHandler({
         toolPointerDown(e.button === 0 ? "primary" : "secondary");
       }}
       onPointerUp={(e) => {
-        if (previewPath.isValid === false) return;
         toolPointerUp(e.button === 0 ? "primary" : "secondary");
       }}
       onPointerOut={handlePointerOut}
