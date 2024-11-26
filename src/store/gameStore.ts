@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import { Tool, ToolType } from "../types/tools";
-import { Cell, CellTypes, Map } from "../types/map";
+import { CellInfo, CellTypes, Map } from "../types/map";
 import { createRoadToolConfig } from "../config/Tools/RoadTool";
 import { createBuildingToolConfig } from "../config/Tools/BuildingTool";
 import { TextureCollection } from "../assets/textures";
 import { GameMetrics } from "../types/metrics";
 import { createCursorToolConfig } from "../config/Tools/CursorTool";
 import { Building } from "../classes/Building";
+import { createParkToolConfig } from "../config/Tools/ParkTool";
 
 export type EffectType = "FUN";
 
@@ -88,6 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     HOUSE: createBuildingToolConfig(store, "HOUSE"),
     OFFICE: createBuildingToolConfig(store, "OFFICE"),
     ICE_CREAM: createBuildingToolConfig(store, "ICE_CREAM"),
+    PARK: createParkToolConfig(store),
   };
 
   return store;
@@ -106,7 +108,7 @@ function generateInitialConfig(gridSize: number): Map {
   };
 }
 
-function generateEmptyGrid(gridSize: number): Cell[][] {
+function generateEmptyGrid(gridSize: number): CellInfo[][] {
   return Array.from({ length: gridSize }, () => {
     return Array.from({ length: gridSize }, () => ({
       type: CellTypes.GRASS,

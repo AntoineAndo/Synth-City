@@ -57,6 +57,17 @@ export const MODELS: { [key: string]: ModelConfig } = {
     castShadow: true,
     receiveShadow: true,
   },
+  MUSHROOM: {
+    id: "MUSHROOM",
+    name: "Mushroom",
+    path: "/src/assets/models/mushroom.glb",
+    scale: [0.02, 0.02, 0.02],
+    offset: [0, 0, 0],
+    rotation: [-Math.PI / 2, 0, 0],
+    castShadow: true,
+    receiveShadow: true,
+    nodeName: "Root",
+  },
 };
 
 // Preload all models

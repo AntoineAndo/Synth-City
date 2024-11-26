@@ -7,6 +7,7 @@ export enum EnumCellTypes {
   GRASS = "GRASS",
   ROAD = "ROAD",
   BUILDING = "BUILDING",
+  PARK = "PARK",
 }
 
 export type CellType = {
@@ -31,12 +32,22 @@ export const CellTypes: Record<EnumCellTypes, CellType> = {
     color: "lightgreen",
     hoverColor: "purple",
   },
+  PARK: {
+    name: "park",
+    color: "green",
+    hoverColor: "red",
+  },
 };
 
 export type CellInfo = {
   type: CellType;
   height: number;
   buildingId?: string;
+  renderInfo?: {
+    environment?: {
+      items: any[];
+    };
+  };
 };
 
 export interface BuildingInterface {

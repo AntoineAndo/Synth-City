@@ -1,18 +1,19 @@
 import { useGLTF } from "@react-three/drei";
 import { useMemo } from "react";
 import { ModelConfig } from "../config/models";
-import { Object3D, Object3DEventMap } from "three";
 
 const Model3D = ({
   position,
   modelConfig,
   rotation = 0,
+  scale = 1,
   isPreview = false,
   isValid = true,
 }: {
   position: [number, number, number];
   modelConfig: ModelConfig;
-  rotation: number;
+  rotation?: number;
+  scale?: number;
   isPreview?: boolean;
   isValid?: boolean;
 }) => {
@@ -43,6 +44,10 @@ const Model3D = ({
   let offsetX = 0;
   let offsetZ = 0;
 
+  let rotationX = modelConfig.rotation?.[0] ?? 0;
+  let rotationY = modelConfig.rotation?.[1] ?? 0;
+  let rotationZ = modelConfig.rotation?.[2] ?? 0;
+
   if (rotation == 0) {
     offsetX = modelConfig.offset?.[0] ?? 0;
     offsetZ = modelConfig.offset?.[2] ?? 0;
@@ -64,14 +69,18 @@ const Model3D = ({
         position[1] + (modelConfig?.offset?.[1] ?? 0),
         position[2] + offsetZ,
       ]}
-      scale={modelConfig.scale}
-      rotation={[
-        modelConfig.rotation?.[0] ?? 0,
-        (modelConfig.rotation?.[1] ?? 0) + rotation,
-        modelConfig.rotation?.[2] ?? 0,
-      ]}
+      // Separate rotation
+      // So that the rotation of the models defined in the config is properly handled
+      rotation={[0, rotation, 0]}
     >
-      {model}
+      <group
+        scale={
+          modelConfig.scale.map((s) => s * scale) as [number, number, number]
+        }
+        rotation={[rotationX, rotationY, rotationZ]}
+      >
+        {model}
+      </group>
     </group>
   );
 };

@@ -1,53 +1,7 @@
 import { GameStore } from "../../store/gameStore";
-import { CellInfo, CellType, Map } from "../../types/map";
+import { CellInfo, CellType, CellTypes, Map } from "../../types/map";
 import { Tool } from "../../types/tools";
-
-// Helper function to draw an L-shaped path between two points
-export const drawRoadPath = (
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-): [number, number][] => {
-  const points: [number, number][] = [];
-
-  // Calculate distances
-  const dx = Math.abs(x2 - x1);
-  const dy = Math.abs(y2 - y1);
-
-  // Start at the beginning
-  let currentX = x1;
-  let currentY = y1;
-
-  if (dx >= dy) {
-    // Move horizontally first (longer distance)
-    while (currentX !== x2) {
-      points.push([currentX, currentY]);
-      currentX += x1 < x2 ? 1 : -1;
-    }
-    // Then vertically
-    while (currentY !== y2) {
-      points.push([currentX, currentY]);
-      currentY += y1 < y2 ? 1 : -1;
-    }
-  } else {
-    // Move vertically first (longer distance)
-    while (currentY !== y2) {
-      points.push([currentX, currentY]);
-      currentY += y1 < y2 ? 1 : -1;
-    }
-    // Then horizontally
-    while (currentX !== x2) {
-      points.push([currentX, currentY]);
-      currentX += x1 < x2 ? 1 : -1;
-    }
-  }
-
-  // Add the final point
-  points.push([x2, y2]);
-
-  return points;
-};
+import { drawRoadPath, updateCells } from "../../utils/mapUtils";
 
 export class RoadTool implements Tool {
   // private cell: [number, number] | null = null;
@@ -121,11 +75,11 @@ export class RoadTool implements Tool {
     const map = this.gameStore.getMap();
 
     // Update cell types for all points in the path
-    const { cells: newCellTypes } = updateCells(map, roadPoints, {
-      name: "grass",
-      color: "lightgreen",
-      hoverColor: "green",
-    });
+    const { cells: newCellTypes } = updateCells(
+      map,
+      roadPoints,
+      CellTypes.ROAD
+    );
     this.gameStore.setMap({
       ...map,
       cells: newCellTypes,
@@ -178,37 +132,6 @@ export class RoadTool implements Tool {
     }
 
     return true;
-  };
-}
-
-function updateCells(
-  map: Map,
-  cells: [number, number][],
-  cellType: CellType
-): {
-  cells: CellInfo[][];
-  ignored: number;
-} {
-  let ignored = 0;
-  const newCellTypes = [...map.cells];
-  cells.forEach(([x, y]) => {
-    if (newCellTypes[x][y].type.name === "road") {
-      ignored++;
-      return;
-    }
-
-    // Preserve the buildingId when changing cell type
-    const buildingId = newCellTypes[x][y].buildingId;
-    newCellTypes[x][y] = {
-      ...newCellTypes[x][y],
-      type: cellType,
-      buildingId, // Keep the building reference
-    };
-  });
-
-  return {
-    cells: newCellTypes,
-    ignored,
   };
 }
 

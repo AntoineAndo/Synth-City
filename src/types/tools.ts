@@ -38,6 +38,7 @@ export const TOOLS = {
   HOUSE: "HOUSE",
   OFFICE: "OFFICE",
   ICE_CREAM: "ICE_CREAM",
+  PARK: "PARK",
 } as const;
 
 export type ToolType = (typeof TOOLS)[keyof typeof TOOLS];
@@ -82,6 +83,11 @@ export const toolbarConfig: ToolbarItem[] = [
         label: "Ice Cream",
         toolName: TOOLS.ICE_CREAM,
         buildingClass: Building,
+      },
+      {
+        id: "park",
+        label: "Park",
+        toolName: TOOLS.PARK,
       },
     ],
   },
