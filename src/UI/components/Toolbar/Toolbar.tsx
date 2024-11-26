@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useGameStore } from "../../../store/gameStore";
 import { toolbarConfig } from "../../../types/tools";
 import styles from "./Toolbar.module.scss";
+import { resetGame } from "../../../utils/gameUtils";
 
 export const Toolbar = () => {
   const currentTool = useGameStore((state) => state.selectedTool);
   const setSelectedTool = useGameStore((state) => state.setSelectedTool);
+  const gameStore = useGameStore();
 
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
 
@@ -54,6 +56,11 @@ export const Toolbar = () => {
           </li>
         );
       })}
+      <li>
+        <button className={styles.button} onClick={() => resetGame(gameStore)}>
+          RESET
+        </button>
+      </li>
     </ul>
   );
 };

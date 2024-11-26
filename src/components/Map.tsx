@@ -5,12 +5,11 @@ import { MapCell } from "./MapCell";
 
 function Map() {
   const textures = useTextures();
+  const map = useGameStore((state) => state.map);
 
   useEffect(() => {
     useGameStore.setState({ textures });
   }, [textures]);
-
-  const map = useGameStore((state) => state.map);
 
   const gridSize = 10;
 

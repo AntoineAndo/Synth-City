@@ -1,16 +1,9 @@
-import { GameStore } from "../store/gameStore";
+import { GameStore, useGameStore } from "../store/gameStore";
 
 export const saveGame = (gameStore: GameStore) => {
   const map = gameStore.getMap();
   const effects = gameStore.getEffectMaps();
   const metrics = gameStore.getMetrics();
-
-  console.log("Saving game to local storage");
-  console.log({
-    map,
-    effects,
-    metrics,
-  });
 
   localStorage.setItem(
     "game",
@@ -20,4 +13,9 @@ export const saveGame = (gameStore: GameStore) => {
       metrics,
     })
   );
+};
+
+export const resetGame = (gameStore: GameStore) => {
+  localStorage.removeItem("game");
+  gameStore.reset();
 };

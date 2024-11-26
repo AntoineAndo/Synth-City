@@ -43,6 +43,7 @@ export interface GameStore {
       building: Building;
     } | null
   ) => void;
+  reset: () => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
@@ -51,20 +52,7 @@ export const useGameStore = create<GameStore>((set, get) => {
   let initialEffectMaps = getInitialEffectMaps();
   let initialMetrics = generateInitialMetrics();
 
-  const localGame = localStorage.getItem("game");
-
-  if (localGame) {
-    console.log("Loading game from local storage");
-    console.log(JSON.parse(localGame));
-    initialMap = JSON.parse(localGame).map;
-    initialEffectMaps = JSON.parse(localGame).effects;
-    initialMetrics = JSON.parse(localGame)?.metrics;
-
-    console.log(initialMetrics);
-  }
-
-  // Create store object first so we can pass it to tools
-  const store: GameStore = {
+  const initialState = {
     map: initialMap,
     setMap: (newMap: Map) => {
       set({ map: newMap });
@@ -92,7 +80,24 @@ export const useGameStore = create<GameStore>((set, get) => {
         building: Building;
       } | null
     ) => set({ selectedBuilding: building }),
+    reset: () => set(initialState),
   };
+
+  const state = {
+    ...initialState,
+  };
+
+  const localGame = localStorage.getItem("game");
+
+  if (localGame) {
+    console.log("Loading game from local storage");
+    state.map = JSON.parse(localGame).map;
+    state.effectMaps = JSON.parse(localGame).effects;
+    state.metrics = JSON.parse(localGame)?.metrics;
+  }
+
+  // Create store object first so we can pass it to tools
+  const store: GameStore = state;
 
   // Initialize tools with the store
   store.tools = {
@@ -102,6 +107,12 @@ export const useGameStore = create<GameStore>((set, get) => {
     OFFICE: createBuildingToolConfig(store, "OFFICE"),
     ICE_CREAM: createBuildingToolConfig(store, "ICE_CREAM"),
     PARK: createParkToolConfig(store),
+  };
+
+  store.reset = () => {
+    store.setMap(generateInitialConfig(10));
+    store.setMetrics(generateInitialMetrics());
+    store.setEffectMaps(getInitialEffectMaps());
   };
 
   return store;
