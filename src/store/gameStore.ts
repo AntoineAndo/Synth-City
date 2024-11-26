@@ -47,9 +47,21 @@ export interface GameStore {
 
 export const useGameStore = create<GameStore>((set, get) => {
   // Create initial map first
-  const initialMap = generateInitialConfig(10);
+  let initialMap = generateInitialConfig(10);
+  let initialEffectMaps = getInitialEffectMaps();
+  let initialMetrics = generateInitialMetrics();
 
-  const initialFunMap = generateInitialEffectMap(10);
+  const localGame = localStorage.getItem("game");
+
+  if (localGame) {
+    console.log("Loading game from local storage");
+    console.log(JSON.parse(localGame));
+    initialMap = JSON.parse(localGame).map;
+    initialEffectMaps = JSON.parse(localGame).effects;
+    initialMetrics = JSON.parse(localGame)?.metrics;
+
+    console.log(initialMetrics);
+  }
 
   // Create store object first so we can pass it to tools
   const store: GameStore = {
@@ -64,10 +76,10 @@ export const useGameStore = create<GameStore>((set, get) => {
     textures: {} as TextureCollection,
     setTextures: (textures: TextureCollection) => set({ textures }),
     getTextures: () => get().textures,
-    metrics: generateInitialMetrics(),
+    metrics: initialMetrics,
     setMetrics: (newMetrics: GameMetrics) => set({ metrics: newMetrics }),
     getMetrics: () => get().metrics,
-    effectMaps: getInitialEffectMaps(),
+    effectMaps: initialEffectMaps,
     setEffectMaps: (newEffectMaps: EffectMaps) =>
       set({ effectMaps: newEffectMaps }),
     getEffectMaps: () => get().effectMaps,

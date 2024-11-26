@@ -5,6 +5,7 @@ import { BuildingType } from "../../types/buildings";
 import { BUILDINGS_CLASSES, BUILDINGS_CONFIG } from "../buildingsConfig";
 import { getEffectCircle } from "../../components/MapBuilder";
 import { Building } from "../../classes/Building";
+import { saveGame } from "../../utils/gameUtils";
 
 export class BuildingTool implements Tool {
   public cell: [number, number] | null = null;
@@ -108,6 +109,9 @@ export class BuildingTool implements Tool {
 
     // Update metrics
     this.updateMetrics();
+
+    // Save the game
+    saveGame(this.gameStore);
 
     this.cell = null;
   };

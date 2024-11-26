@@ -1,6 +1,7 @@
 import { GameStore } from "../../store/gameStore";
 import { CellInfo, CellType, CellTypes, Map } from "../../types/map";
 import { Tool } from "../../types/tools";
+import { saveGame } from "../../utils/gameUtils";
 import { drawRoadPath, updateCells } from "../../utils/mapUtils";
 
 export class RoadTool implements Tool {
@@ -62,6 +63,9 @@ export class RoadTool implements Tool {
       ...metrics,
       money: newMoney,
     });
+
+    // Save the game
+    saveGame(this.gameStore);
 
     this.cell = null;
   };

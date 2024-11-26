@@ -1,6 +1,7 @@
 import { GameStore } from "../../store/gameStore";
 import { CellTypes } from "../../types/map";
 import { Tool } from "../../types/tools";
+import { saveGame } from "../../utils/gameUtils";
 import { drawSquarePath, updateCells } from "../../utils/mapUtils";
 
 export class ParkTool implements Tool {
@@ -45,6 +46,9 @@ export class ParkTool implements Tool {
       ...map,
       cells: newCellTypes,
     });
+
+    // Save the game
+    saveGame(this.gameStore);
 
     this.cell = null;
   };
