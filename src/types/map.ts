@@ -65,7 +65,7 @@ export interface BuildingInterface {
   effects: Record<EffectType, number>;
 }
 
-export type Map = {
+export type MapType = {
   cells: CellInfo[][];
   buildings: MapBuilding;
 };

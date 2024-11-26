@@ -1,10 +1,10 @@
 import { MODELS } from "../config/models";
 import { CellInfo } from "../types/map";
 import { CellType } from "../types/map";
-import { Map } from "../types/map";
+import { MapType } from "../types/map";
 
 export function updateCells(
-  map: Map,
+  map: MapType,
   cells: [number, number][],
   cellType: CellType
 ): {

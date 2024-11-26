@@ -39,6 +39,7 @@ export const TOOLS = {
   OFFICE: "OFFICE",
   ICE_CREAM: "ICE_CREAM",
   PARK: "PARK",
+  PATH: "PATH",
 } as const;
 
 export type ToolType = (typeof TOOLS)[keyof typeof TOOLS];
@@ -56,6 +57,11 @@ export const toolbarConfig: ToolbarItem[] = [
     id: "cursor",
     label: "Cursor",
     toolName: TOOLS.CURSOR,
+  },
+  {
+    id: "path",
+    label: "Path",
+    toolName: TOOLS.PATH,
   },
   {
     id: "road",

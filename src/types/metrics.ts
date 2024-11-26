@@ -1,6 +1,6 @@
 import { Building } from "../classes/Building";
 import { EffectMaps } from "../store/gameStore";
-import { Map } from "./map";
+import { MapType } from "./map";
 
 export interface GameMetrics {
   money: number;
@@ -31,7 +31,7 @@ export interface BuildingMetricThreshold {
   condition: (
     building: Building,
     metrics?: GameMetrics,
-    map?: Map,
+    map?: MapType,
     effectMaps?: EffectMaps
   ) => boolean;
   action: (building: Building, metrics: GameMetrics) => void;

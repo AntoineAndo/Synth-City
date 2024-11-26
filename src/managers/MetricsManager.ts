@@ -1,6 +1,6 @@
 import { Building } from "../classes/Building";
 import { EffectMaps } from "../store/gameStore";
-import { Map } from "../types/map";
+import { MapType } from "../types/map";
 import {
   BuildingMetricThreshold,
   GameMetrics,
@@ -105,7 +105,7 @@ export class MetricsManager {
   static updateBuildings(
     buildings: Record<string, Building>,
     metrics: GameMetrics,
-    map: Map,
+    map: MapType,
     effectMaps: EffectMaps
   ): Record<string, Building> {
     Object.values(buildings).forEach((building) => {
@@ -119,7 +119,7 @@ export class MetricsManager {
     return buildings;
   }
 
-  static updateMetrics(currentMetrics: GameMetrics, map: Map): GameMetrics {
+  static updateMetrics(currentMetrics: GameMetrics, map: MapType): GameMetrics {
     let newMetrics = { ...currentMetrics };
 
     // Apply thresholds one by one, updating metrics after each

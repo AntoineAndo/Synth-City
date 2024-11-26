@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Tool, ToolType } from "../types/tools";
-import { CellInfo, CellTypes, Map } from "../types/map";
+import { CellInfo, CellTypes, MapType } from "../types/map";
 import { createRoadToolConfig } from "../config/Tools/RoadTool";
 import { createBuildingToolConfig } from "../config/Tools/BuildingTool";
 import { TextureCollection } from "../assets/textures";
@@ -8,7 +8,15 @@ import { GameMetrics } from "../types/metrics";
 import { createCursorToolConfig } from "../config/Tools/CursorTool";
 import { Building } from "../classes/Building";
 import { createParkToolConfig } from "../config/Tools/ParkTool";
+import { createPathToolConfig } from "../config/Tools/PathTool";
 
+export interface RoadNode {
+  position: [number, number];
+  neighbors: Array<{
+    node: [number, number];
+    distance: number;
+  }>;
+}
 export type EffectType = "FUN";
 
 export type EffectMaps = Partial<{
@@ -16,9 +24,9 @@ export type EffectMaps = Partial<{
 }>;
 
 export interface GameStore {
-  map: Map;
-  setMap: (map: Map) => void;
-  getMap: () => Map;
+  map: MapType;
+  setMap: (map: MapType) => void;
+  getMap: () => MapType;
   tools: Record<string, Tool>;
   selectedTool: string;
   setSelectedTool: (tool: ToolType) => void;
@@ -44,6 +52,9 @@ export interface GameStore {
     } | null
   ) => void;
   reset: () => void;
+  roadGraph: Map<string, RoadNode>;
+  setRoadGraph: (roadGraph: Map<string, RoadNode>) => void;
+  getRoadGraph: () => Map<string, RoadNode>;
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
@@ -54,7 +65,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
   const initialState = {
     map: initialMap,
-    setMap: (newMap: Map) => {
+    setMap: (newMap: MapType) => {
       set({ map: newMap });
     },
     getMap: () => get().map,
@@ -81,6 +92,9 @@ export const useGameStore = create<GameStore>((set, get) => {
       } | null
     ) => set({ selectedBuilding: building }),
     reset: () => set(initialState),
+    roadGraph: new Map<string, RoadNode>(),
+    setRoadGraph: (roadGraph: Map<string, RoadNode>) => set({ roadGraph }),
+    getRoadGraph: () => get().roadGraph,
   };
 
   const state = {
@@ -107,6 +121,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     OFFICE: createBuildingToolConfig(store, "OFFICE"),
     ICE_CREAM: createBuildingToolConfig(store, "ICE_CREAM"),
     PARK: createParkToolConfig(store),
+    PATH: createPathToolConfig(store),
   };
 
   store.reset = () => {
@@ -124,7 +139,7 @@ function getInitialEffectMaps(): EffectMaps {
   };
 }
 
-function generateInitialConfig(gridSize: number): Map {
+function generateInitialConfig(gridSize: number): MapType {
   return {
     cells: generateEmptyGrid(gridSize),
     buildings: {},

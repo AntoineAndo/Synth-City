@@ -1,8 +1,7 @@
 import { TextureCollection } from "../assets/textures";
-import { CellInfo, CellType, Map } from "../types/map";
+import { CellInfo, CellType, MapType } from "../types/map";
 import * as THREE from "three";
 import Model3D from "./Model3D";
-import { MODELS } from "../config/models";
 
 export type PointerType = "primary" | "secondary";
 
@@ -10,7 +9,7 @@ type Props = {
   i: number;
   j: number;
   cell: CellInfo;
-  map: Map;
+  map: MapType;
   gridSize: number;
   textures: TextureCollection;
 };

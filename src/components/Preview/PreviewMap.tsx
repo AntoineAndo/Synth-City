@@ -1,5 +1,5 @@
 import { PreviewCell } from "./PreviewCell";
-import { Map } from "../../types/map";
+import { MapType } from "../../types/map";
 import { EdgesGeometry, LineBasicMaterial, PlaneGeometry } from "three";
 import { Building } from "../../classes/Building";
 
@@ -9,7 +9,7 @@ function PreviewMap({
   effectCircle,
   selectedBuilding,
 }: {
-  map: Map;
+  map: MapType;
   previewPath: any;
   effectCircle: any;
   selectedBuilding: {

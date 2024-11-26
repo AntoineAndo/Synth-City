@@ -1,5 +1,5 @@
-import { GameStore } from "../../store/gameStore";
-import { CellInfo, CellType, CellTypes, Map } from "../../types/map";
+import { GameStore, RoadNode } from "../../store/gameStore";
+import { CellTypes, MapType } from "../../types/map";
 import { Tool } from "../../types/tools";
 import { saveGame } from "../../utils/gameUtils";
 import { drawRoadPath, updateCells } from "../../utils/mapUtils";
@@ -45,7 +45,7 @@ export class RoadTool implements Tool {
       hoverColor: "red",
     });
 
-    const newMap: Map = {
+    const newMap: MapType = {
       cells: newCellTypes,
       buildings: {
         ...map.buildings,
@@ -63,6 +63,11 @@ export class RoadTool implements Tool {
       ...metrics,
       money: newMoney,
     });
+
+    // Generate road graph
+    const roadGraph = generateRoadGraph(newMap);
+
+    this.gameStore.setRoadGraph(roadGraph);
 
     // Save the game
     saveGame(this.gameStore);
@@ -138,6 +143,53 @@ export class RoadTool implements Tool {
     return true;
   };
 }
+
+const generateRoadGraph = (map: MapType): Map<string, RoadNode> => {
+  const roadGraph = new Map<string, RoadNode>();
+  const positionToKey = (pos: [number, number]): string =>
+    `${pos[0]},${pos[1]}`;
+
+  map.cells.forEach((row, i) => {
+    row.forEach((cell, j) => {
+      if (cell.type.name === "road") {
+        const key = positionToKey([i, j]);
+        roadGraph.set(key, {
+          position: [i, j],
+          neighbors: [],
+        });
+      }
+    });
+  });
+
+  // Second pass: connect neighboring road cells
+  roadGraph.forEach((node) => {
+    const [i, j] = node.position;
+
+    // Check all 4 directions (you can add diagonals if needed)
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ];
+
+    directions.forEach(([di, dj]) => {
+      const newI = i + di;
+      const newJ = j + dj;
+
+      // Check if neighbor exists and is a road
+      if (map.cells[newI]?.[newJ]?.type.name === "road") {
+        node.neighbors.push({
+          node: [newI, newJ],
+          distance: 1, // You can modify this based on your needs
+        });
+      }
+    });
+  });
+
+  console.log(roadGraph);
+  return roadGraph;
+};
 
 export const createRoadToolConfig = (gameStore: GameStore): Tool => {
   return new RoadTool(gameStore);
