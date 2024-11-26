@@ -24,17 +24,19 @@ const Model3D = ({
     clonedScene.traverse((child: any) => {
       if (child.isMesh) {
         child.material = child.material.clone();
+        child.material.metalness = 0.2;
         if (isPreview) {
           child.material.transparent = true;
-          child.material.opacity = 0.5;
+          child.material.opacity = 0.4;
 
           if (isValid === false) {
             child.material.color.set("red");
+          } else {
+            child.material.color.set("#00ff00");
           }
         } else {
           child.castShadow = modelConfig.castShadow;
           child.receiveShadow = modelConfig.receiveShadow;
-          child.material.metalness = 0.2;
         }
       }
     });
