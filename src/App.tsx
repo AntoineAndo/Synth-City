@@ -49,8 +49,8 @@ function App() {
             enablePan={false} // Allow panning (optional)
             minZoom={20} // Set minimum zoom (optional)
             maxZoom={100} // Set maximum zoom (optional)
-            maxPolarAngle={Math.PI / 3}
-            minPolarAngle={Math.PI / 3}
+            maxPolarAngle={Math.PI / 2.8}
+            minPolarAngle={Math.PI / 2.8}
           />
         </Canvas>
       </Suspense>
