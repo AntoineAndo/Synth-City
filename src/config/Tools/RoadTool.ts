@@ -187,7 +187,6 @@ const generateRoadGraph = (map: MapType): Map<string, RoadNode> => {
     });
   });
 
-  console.log(roadGraph);
   return roadGraph;
 };
 

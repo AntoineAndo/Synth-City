@@ -5,6 +5,7 @@ import { useGameStore } from "../store/gameStore";
 import PreviewBuilding from "./Preview/PreviewBuilding";
 import { BUILDINGS_CONFIG } from "../config/buildingsConfig";
 import { BuildingType } from "../types/buildings";
+import { getEffectCircle } from "../utils/mapUtils";
 
 const MapBuilder = () => {
   const map = useGameStore((state) => state.map);
@@ -18,7 +19,6 @@ const MapBuilder = () => {
     path: [],
     isValid: null,
   });
-  // const [effectCircle, setEffectCircle] = useState<[number, number][]>([]);
   const selectedTool = useGameStore((state) => state.selectedTool);
   const tools = useGameStore((state) => state.tools);
 
@@ -82,30 +82,5 @@ const MapBuilder = () => {
     </>
   );
 };
-
-export function getEffectCircle(
-  center: [number, number] | null,
-  radius: number,
-  gridSize: number
-) {
-  if (!center) return [];
-  const [x, y] = center;
-  const circle: [number, number][] = [];
-
-  for (let i = -radius; i <= radius; i++) {
-    for (let j = -radius; j <= radius; j++) {
-      // Check if point is within radius using distance formula
-      if (Math.sqrt(i * i + j * j) <= radius) {
-        const newX = x + i;
-        const newY = y + j;
-        // Only add if within grid bounds
-        if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
-          circle.push([newX, newY]);
-        }
-      }
-    }
-  }
-  return circle;
-}
 
 export default MapBuilder;

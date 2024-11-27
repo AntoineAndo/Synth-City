@@ -2,6 +2,7 @@ import { PreviewCell } from "./PreviewCell";
 import { MapType } from "../../types/map";
 import { EdgesGeometry, LineBasicMaterial, PlaneGeometry } from "three";
 import { Building } from "../../classes/Building";
+import { useGameStore } from "../../store/gameStore";
 
 function PreviewMap({
   map,
@@ -17,12 +18,11 @@ function PreviewMap({
     building: Building;
   } | null;
 }) {
+  const routePath = useGameStore((state) => state.routePath);
+
   const gridSize = 10;
 
-  // if (!hoveredCell) return null;
-  // if (!previewPath) return null;
-
-  // console.log(effectCircle);
+  // console.log(routePath);
 
   return (
     <group position={[0.5, 0.02, 0.5]} rotation={[0, 0, 0]}>
@@ -60,6 +60,20 @@ function PreviewMap({
             z={cell?.[1] - gridSize / 2}
             color={effectCircle.color}
           />
+        ))}
+
+      {/* Route Path */}
+      {routePath.length > 0 &&
+        routePath.map((cell) => (
+          <mesh
+            key={`route-${cell?.[0]}-${cell?.[1]}`}
+            position={[cell[0] - gridSize / 2, 0, cell[1] - gridSize / 2]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            {/* <boxGeometry args={[0.3, 0.01, 0.3]} /> */}
+            <circleGeometry args={[0.15, 32]} />
+            <meshBasicMaterial color="blue" />
+          </mesh>
         ))}
     </group>
   );

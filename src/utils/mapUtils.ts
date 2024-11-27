@@ -1,4 +1,5 @@
 import { MODELS } from "../config/models";
+import { RoadNode } from "../store/gameStore";
 import { CellInfo } from "../types/map";
 import { CellType } from "../types/map";
 import { MapType } from "../types/map";
@@ -126,3 +127,119 @@ export const drawSquarePath = (
 
   return points;
 };
+
+const adjacencyList = {
+  A: {
+    neighbors: ["B", "C"],
+  },
+  B: {
+    neighbors: ["A", "C", "D"],
+  },
+  C: {
+    neighbors: ["A", "B"],
+  },
+  D: {
+    neighbors: ["B", "E"],
+  },
+  E: {
+    neighbors: ["D"],
+  },
+};
+
+export function djikstra(
+  start: string,
+  end: string,
+  adj: Map<string, RoadNode>
+): [number, number][] {
+  // Initialize distances
+  const distances: Record<string, number> = {};
+  const previous: Record<string, string | null> = {};
+  const unvisited: Set<string> = new Set();
+
+  // Initialize all nodes with infinity distance except start
+  for (const nodeId of adj.keys()) {
+    distances[nodeId] = nodeId === start ? 0 : Infinity;
+    previous[nodeId] = null;
+    unvisited.add(nodeId);
+  }
+
+  while (unvisited.size > 0) {
+    // Get unvisited node with minimum distance
+    const current = getNextNode(distances, unvisited);
+
+    if (current === null || distances[current] === Infinity) {
+      break; // No reachable nodes left
+    }
+
+    if (current === end) {
+      break; // Found the destination
+    }
+
+    unvisited.delete(current);
+
+    // Check all neighbors of current node
+    adj.get(current)?.neighbors.forEach((neighbor) => {
+      const neighborId = neighbor.node.join(",");
+
+      if (!unvisited.has(neighborId)) return;
+
+      const distance = distances[current] + 1; // +1 because unweighted
+      if (distance < distances[neighborId]) {
+        distances[neighborId] = distance;
+        previous[neighborId] = current;
+      }
+    });
+  }
+
+  // Reconstruct path
+  const path = [];
+  let current: string | null = end;
+  while (current !== null) {
+    path.unshift(current);
+    current = previous[current];
+  }
+
+  return path.map((node) => node.split(",").map(Number)) as [number, number][];
+}
+
+function getNextNode(
+  distances: Record<string, number>,
+  unvisited: Set<string>
+) {
+  let minDistance = Infinity;
+  let minNode = null;
+
+  for (const node of unvisited) {
+    if (distances[node] < minDistance) {
+      minDistance = distances[node];
+      minNode = node;
+    }
+  }
+
+  return minNode;
+}
+
+export function getEffectCircle(
+  center: [number, number] | null,
+  radius: number,
+  gridSize: number
+) {
+  if (!center) return [];
+  const [x, y] = center;
+  const circle: [number, number][] = [];
+
+  for (let i = -radius; i <= radius; i++) {
+    for (let j = -radius; j <= radius; j++) {
+      // Check if point is within radius using distance formula
+      if (Math.sqrt(i * i + j * j) <= radius) {
+        const newX = x + i;
+        const newY = y + j;
+        // Only add if within grid bounds
+        if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
+          circle.push([newX, newY]);
+        }
+      }
+    }
+  }
+  return circle;
+}

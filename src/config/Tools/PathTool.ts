@@ -1,5 +1,6 @@
 import { GameStore, RoadNode } from "../../store/gameStore";
 import { Tool } from "../../types/tools";
+import { djikstra } from "../../utils/mapUtils";
 
 export class PathTool implements Tool {
   // private cell: [number, number] | null = null;
@@ -34,14 +35,22 @@ export class PathTool implements Tool {
 
     if (!this.previousCell) return (this.previousCell = this.cell);
 
-    const map = this.gameStore.getMap();
     const roadPath = this.gameStore.getRoadGraph();
 
-    const path = PathTool.findPath(roadPath, this.previousCell, this.cell);
+    // const path = PathTool.findPath(roadPath, this.previousCell, this.cell);
 
-    console.log("> Path", path);
+    const path = djikstra(
+      this.previousCell.join(","),
+      this.cell.join(","),
+      roadPath
+    );
+    // console.log("> Path", path);
 
+    this.previousCell = null;
     this.cell = null;
+    if (path.length > 0) {
+      this.gameStore.setRoutePath(path);
+    }
   };
 
   onPointerUpSecondary = (i: number, j: number) => {
@@ -62,46 +71,6 @@ export class PathTool implements Tool {
     preview: any
   ): boolean => {
     return true;
-  };
-
-  static findPath = (
-    roadPath: Map<string, RoadNode>,
-    start: [number, number],
-    end: [number, number]
-  ): [number, number][] => {
-    console.log("> start", start);
-    console.log("> end", end);
-
-    const startKey = `${start[0]},${start[1]}`;
-    const endKey = `${end[0]},${end[1]}`;
-    const visited = new Set<string>();
-    const queue = [[startKey]];
-    const path = [];
-
-    while (queue.length > 0) {
-      const currentPath = queue.shift();
-      if (!currentPath) continue;
-      const currentNodeKey = currentPath[currentPath.length - 1];
-      const currentNode = roadPath.get(currentNodeKey);
-
-      if (!currentNode) continue;
-
-      if (currentNodeKey === endKey) {
-        path.push(currentNode.position);
-        break;
-      }
-
-      if (visited.has(currentNodeKey)) continue;
-      visited.add(currentNodeKey);
-
-      currentNode.neighbors.forEach((neighbor) => {
-        const neighborKey = `${neighbor.node[0]},${neighbor.node[1]}`;
-        const newPath = [...currentPath, neighborKey];
-        queue.push(newPath);
-      });
-    }
-
-    return path.reverse();
   };
 }
 

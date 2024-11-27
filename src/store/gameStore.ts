@@ -55,6 +55,9 @@ export interface GameStore {
   roadGraph: Map<string, RoadNode>;
   setRoadGraph: (roadGraph: Map<string, RoadNode>) => void;
   getRoadGraph: () => Map<string, RoadNode>;
+  routePath: [number, number][];
+  setRoutePath: (routePath: [number, number][]) => void;
+  getRoutePath: () => [number, number][];
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
@@ -95,6 +98,9 @@ export const useGameStore = create<GameStore>((set, get) => {
     roadGraph: new Map<string, RoadNode>(),
     setRoadGraph: (roadGraph: Map<string, RoadNode>) => set({ roadGraph }),
     getRoadGraph: () => get().roadGraph,
+    routePath: [],
+    setRoutePath: (routePath: [number, number][]) => set({ routePath }),
+    getRoutePath: () => get().routePath,
   };
 
   const state = {
