@@ -108,6 +108,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     state.map = JSON.parse(localGame).map;
     state.effectMaps = JSON.parse(localGame).effects;
     state.metrics = JSON.parse(localGame)?.metrics;
+    state.roadGraph = new Map(JSON.parse(localGame)?.roadGraph);
   }
 
   // Create store object first so we can pass it to tools
@@ -128,6 +129,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     store.setMap(generateInitialConfig(10));
     store.setMetrics(generateInitialMetrics());
     store.setEffectMaps(getInitialEffectMaps());
+    store.setRoadGraph(new Map<string, RoadNode>());
   };
 
   return store;
