@@ -51,6 +51,10 @@ export interface GameStore {
       building: Building;
     } | null
   ) => void;
+  getSelectedBuilding: () => {
+    cells: [number, number][];
+    building: Building;
+  } | null;
   reset: () => void;
   roadGraph: Map<string, RoadNode>;
   setRoadGraph: (roadGraph: Map<string, RoadNode>) => void;
@@ -94,6 +98,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         building: Building;
       } | null
     ) => set({ selectedBuilding: building }),
+    getSelectedBuilding: () => get().selectedBuilding,
     reset: () => set(initialState),
     roadGraph: new Map<string, RoadNode>(),
     setRoadGraph: (roadGraph: Map<string, RoadNode>) => set({ roadGraph }),

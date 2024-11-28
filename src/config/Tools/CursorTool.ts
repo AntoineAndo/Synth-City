@@ -29,21 +29,24 @@ export class CursorTool implements Tool {
 
   onPointerUp = (i: number, j: number) => {
     if (!this.cell) return;
+    if (this.cell[0] !== i || this.cell[1] !== j) return;
 
     const map = this.gameStore.getMap();
     const cell = map.cells[this.cell[0]][this.cell[1]];
 
     // Update the selected building
     let newSelectedBuilding = null;
-    if (cell.buildingId) {
+
+    if (
+      cell.buildingId &&
+      cell.buildingId !== this.gameStore.getSelectedBuilding()?.building.id
+    ) {
       const building = map.buildings[cell.buildingId];
       newSelectedBuilding = {
         cells: building.buildingCells,
         building,
       };
     }
-
-    console.log("> Selected building", newSelectedBuilding);
 
     this.gameStore.setSelectedBuilding(newSelectedBuilding);
 

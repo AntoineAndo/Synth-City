@@ -3,6 +3,7 @@ import { MapType } from "../../types/map";
 import { EdgesGeometry, LineBasicMaterial, PlaneGeometry } from "three";
 import { Building } from "../../classes/Building";
 import { useGameStore } from "../../store/gameStore";
+import { Html } from "@react-three/drei";
 
 function PreviewMap({
   map,
@@ -22,7 +23,10 @@ function PreviewMap({
 
   const gridSize = 10;
 
-  // console.log(routePath);
+  const selectedBuildingCells = selectedBuilding?.cells[0];
+  const size = selectedBuilding?.building.size;
+
+  const offset = size === 1 || !size ? 0 : size / 4;
 
   return (
     <group position={[0.5, 0.02, 0.5]} rotation={[0, 0, 0]}>
@@ -36,21 +40,29 @@ function PreviewMap({
           />
         ))}
 
-      {selectedBuilding &&
-        selectedBuilding.cells.length > 0 &&
-        selectedBuilding.cells.map((cell) => (
-          <group key={`preview-${cell?.[0]}-${cell?.[1]}`}>
-            {/* Main Mesh */}
+      {selectedBuildingCells && size && (
+        <group
+          key={`preview-${selectedBuildingCells?.[0]}-${selectedBuildingCells?.[1]}`}
+          position={[
+            selectedBuildingCells?.[0] - gridSize / 2 + offset,
+            0.01,
+            selectedBuildingCells?.[1] - gridSize / 2 + offset,
+          ]}
+        >
+          <Html>
+            <div>
+              <h3>{selectedBuilding.building.buildingType}</h3>
+            </div>
+          </Html>
 
-            {/* Border/Outline */}
-            <lineSegments
-              rotation={[-Math.PI / 2, 0, 0]}
-              position={[cell[0] - gridSize / 2, 0.01, cell[1] - gridSize / 2]}
-              geometry={new EdgesGeometry(new PlaneGeometry(1, 1))}
-              material={new LineBasicMaterial({ color: "red", linewidth: 1 })}
-            />
-          </group>
-        ))}
+          {/* Border/Outline */}
+          <lineSegments
+            rotation={[-Math.PI / 2, 0, 0]}
+            geometry={new EdgesGeometry(new PlaneGeometry(size, size))}
+            material={new LineBasicMaterial({ color: "red", linewidth: 1 })}
+          />
+        </group>
+      )}
 
       {effectCircle.cells.length > 0 &&
         effectCircle.cells.map((cell: [number, number]) => (
