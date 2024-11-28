@@ -2,6 +2,7 @@ import { useGameStore } from "../../../store/gameStore";
 
 export const Metrics = () => {
   const metrics = useGameStore((state) => state.metrics);
+  const { buildings } = useGameStore((state) => state.map);
 
   return (
     <ul>
@@ -9,7 +10,11 @@ export const Metrics = () => {
       <li>
         Inhabitants: {metrics.inhabitants} / {metrics.inhabitantsCapacity}
       </li>
-      <li>Happiness: {metrics.happiness}</li>
+      <li>
+        Happiness:{" "}
+        {Object.values(buildings).reduce((acc, c) => (acc += c.happiness), 0) /
+          Object.values(buildings).length}
+      </li>
       <li>
         Working people: {metrics.workingPeople} / {metrics.workingCapacity}
       </li>

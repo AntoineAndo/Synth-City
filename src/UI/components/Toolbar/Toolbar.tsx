@@ -1,35 +1,31 @@
-import { useEffect, useState } from "react";
-import { GameStore, useGameStore } from "../../../store/gameStore";
+import { useState } from "react";
+import { useGameStore } from "../../../store/gameStore";
 import { toolbarConfig } from "../../../types/tools";
 import styles from "./Toolbar.module.scss";
 import { resetGame } from "../../../utils/gameUtils";
 import * as Tone from "tone";
+import { useMusicStore } from "../../../store/musicStore";
 
 export const Toolbar = () => {
   const currentTool = useGameStore((state) => state.selectedTool);
   const setSelectedTool = useGameStore((state) => state.setSelectedTool);
-  const gameStore = useGameStore();
+  const isPlaying = useMusicStore((state) => state.getIsPlaying());
+  const setIsPlaying = useMusicStore((state) => state.setIsPlaying);
 
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
 
-  useEffect(() => {
-    gameStore.setIsPlaying(false);
-  }, []);
-
   const togglePlayPause = () => {
-    if (gameStore.getIsPlaying()) {
-      Tone.Transport.stop();
+    if (isPlaying) {
+      setIsPlaying(false);
     } else {
       Tone.start();
-      Tone.Transport.start();
+      setIsPlaying(true);
     }
-    gameStore.setIsPlaying(!gameStore.getIsPlaying());
   };
 
-  const onReset = (gameStore: GameStore) => {
-    resetGame(gameStore);
-    Tone.Transport.stop();
-    gameStore.setIsPlaying(false);
+  const onReset = () => {
+    resetGame();
+    setIsPlaying(false);
   };
 
   return (
@@ -78,13 +74,13 @@ export const Toolbar = () => {
         );
       })}
       <li>
-        <button className={styles.button} onClick={() => onReset(gameStore)}>
+        <button className={styles.button} onClick={() => onReset()}>
           RESET
         </button>
       </li>
       <li>
         <button className={styles.button} onClick={() => togglePlayPause()}>
-          {gameStore.getIsPlaying() ? "PAUSE" : "PLAY"}
+          {isPlaying ? "PAUSE" : "PLAY"}
         </button>
       </li>
     </ul>

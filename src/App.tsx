@@ -10,11 +10,13 @@ import Light from "./components/Light";
 import { MODELS } from "./config/models";
 import Model3D from "./components/Model3D";
 import Map from "./components/Map";
+import { MusicController } from "./components/MusicController";
 
 function App() {
   return (
     <div className="app" style={{ width: "100%", height: "100%" }}>
       <Suspense fallback={<div>Loading...</div>}>
+        <MusicController />
         <Canvas
           orthographic
           camera={{

@@ -58,9 +58,6 @@ export interface GameStore {
   routePath: [number, number][];
   setRoutePath: (routePath: [number, number][]) => void;
   getRoutePath: () => [number, number][];
-  isPlaying: boolean;
-  getIsPlaying: () => boolean;
-  setIsPlaying: (isPlaying: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
@@ -104,9 +101,6 @@ export const useGameStore = create<GameStore>((set, get) => {
     routePath: [],
     setRoutePath: (routePath: [number, number][]) => set({ routePath }),
     getRoutePath: () => get().routePath,
-    isPlaying: false,
-    setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
-    getIsPlaying: () => get().isPlaying,
   };
 
   const state = {

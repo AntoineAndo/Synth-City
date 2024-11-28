@@ -1,20 +1,12 @@
 import { useEffect, useCallback, useRef, useMemo } from "react";
 import * as Tone from "tone";
-import { CellInfo, CellTypes, MapType } from "../types/map";
+import { MapType } from "../types/map";
 import { useGameStore } from "../store/gameStore";
-import seedrandom from "seedrandom";
-import { BuildingType } from "../types/buildings";
-import { Building } from "../classes/Building";
-
-interface SequencerConfig {
-  bpm: number;
-  subdivisions: number; // How many steps in the sequence
-  key: string[]; // Available notes in the key
-}
+import { createSequence } from "../utils/musicUtils";
 
 export const useMusicSequencer = () => {
   const map = useGameStore((state) => state.getMap());
-  const buildings = map.buildings;
+  const buildings = Object.values(map.buildings);
 
   const melodySynth = useRef<Tone.Synth | null>(null);
   const bassSynth = useRef<Tone.MonoSynth | null>(null);
@@ -22,69 +14,91 @@ export const useMusicSequencer = () => {
   const melodySequence = useRef<Tone.Sequence | null>(null);
   const bassSequence = useRef<Tone.Sequence | null>(null);
 
+  const stereo = useRef<Tone.StereoWidener | null>(null);
   const reverb = useRef<Tone.Freeverb | null>(null);
+  const delay = useRef<Tone.FeedbackDelay | null>(null);
 
-  useEffect(() => {
-    // Initialize Tone.js
-    Tone.start();
-    Tone.Transport.bpm.value = 120;
+  const cleanup = useCallback(() => {
+    // Dispose all sequences
+    melodySequence.current?.dispose();
+    bassSequence.current?.dispose();
 
-    const musicParams = analyzeCityLayout(map);
+    // Dispose all synths
+    melodySynth.current?.dispose();
+    bassSynth.current?.dispose();
 
-    console.log("musicParams", musicParams);
+    // Dispose all effects
+    stereo.current?.dispose();
+    reverb.current?.dispose();
+    delay.current?.dispose();
 
-    // Create effects that we'll modulate
-    const stereo = new Tone.StereoWidener(1).toDestination();
-    reverb.current = new Tone.Freeverb(musicParams.reverb, 100).connect(stereo);
-    const delay = new Tone.FeedbackDelay("8n", 0.1).connect(reverb.current);
+    // Reset refs
+    melodySequence.current = null;
+    bassSequence.current = null;
+    melodySynth.current = null;
+    bassSynth.current = null;
+    stereo.current = null;
+    reverb.current = null;
+    delay.current = null;
 
-    // const chorus = new Tone.Chorus(0.5, 20, 5).connect(delay);
-
-    // Create different instruments
-    melodySynth.current = new Tone.Synth({
-      volume: 5,
-    }).connect(delay);
-    bassSynth.current = new Tone.MonoSynth({
-      volume: 10,
-    }).connect(delay);
-
-    // Create sequences
-    melodySequence.current = new Tone.Sequence((time, note) => {
-      melodySynth?.current?.triggerAttackRelease(note, 0.1, time);
-    }, houseSequence).start(0);
-
-    bassSequence.current = new Tone.Sequence((time, note) => {
-      bassSynth?.current?.triggerAttackRelease(note, 0.1, time);
-    }, officeSequence).start(0);
-
-    return () => {
-      melodySynth.current?.dispose();
-      bassSynth.current?.dispose();
-      melodySequence.current?.dispose();
-      bassSequence.current?.dispose();
-      Tone.Transport.cancel();
-      reverb.current?.dispose();
-      delay.dispose();
-    };
+    // Stop and reset transport
+    Tone.Transport.stop();
+    Tone.Transport.cancel();
   }, []);
 
   useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup]);
+
+  const initSequencer = useCallback(() => {
+    // Clean up any existing instances first
+    cleanup();
+
+    Tone.Transport.bpm.value = 100;
     const musicParams = analyzeCityLayout(map);
-    reverb.current?.set({
-      roomSize: musicParams.reverb,
-    });
-  }, [map]);
+
+    // Create effects that we'll modulate
+    stereo.current = new Tone.StereoWidener(1).toDestination();
+    reverb.current = new Tone.Freeverb(musicParams.reverb, 100).connect(
+      stereo.current
+    );
+    delay.current = new Tone.FeedbackDelay("8n", 0.5).connect(reverb.current);
+
+    // Create different instruments
+    melodySynth.current = new Tone.Synth({
+      volume: 10,
+    }).connect(delay.current);
+    bassSynth.current = new Tone.MonoSynth({
+      volume: 1,
+    }).connect(reverb.current);
+
+    console.log("houseSequence", houseSequence);
+    console.log("officeSequence", officeSequence);
+
+    melodySequence.current?.dispose();
+    // Create sequences
+    melodySequence.current = new Tone.Sequence((time, note) => {
+      melodySynth?.current?.triggerAttackRelease(note, 0.5, time);
+    }, houseSequence).start(0);
+
+    bassSequence.current?.dispose();
+    bassSequence.current = new Tone.Sequence((time, note) => {
+      bassSynth?.current?.triggerAttackRelease(note, 0.3, time);
+    }, officeSequence).start(0);
+  }, [map, cleanup]);
+
+  useEffect(() => {
+    initSequencer();
+  }, [initSequencer]);
 
   const houses = useMemo(() => {
-    return Object.values(buildings).filter(
-      (building) => building.buildingType === "HOUSE"
-    );
+    return buildings.filter((building) => building.buildingType === "HOUSE");
   }, [buildings]);
 
   const offices = useMemo(() => {
-    return Object.values(buildings).filter(
-      (building) => building.buildingType !== "HOUSE"
-    );
+    return buildings.filter((building) => building.buildingType !== "HOUSE");
   }, [buildings]);
 
   const houseSequence = useMemo(() => {
@@ -95,44 +109,21 @@ export const useMusicSequencer = () => {
     return createSequence(offices, [2, 2], "office");
   }, [offices]);
 
-  melodySequence.current = new Tone.Sequence((time, note) => {
-    melodySynth?.current?.triggerAttackRelease(note, 0.1, time);
-    // subdivisions are given as subarrays
-  }, houseSequence).start(0);
+  const updateSequence = useCallback((map: MapType) => {}, []);
 
-  bassSequence.current = new Tone.Sequence((time, note) => {
-    bassSynth?.current?.triggerAttackRelease(note, 0.1, time);
-  }, officeSequence).start(0);
-
-  const updateSequence = useCallback((map: MapType) => {
-    // Analyze map to create musical parameters
-    // const musicParams = analyzeCityLayout(map);
-    // Create new sequence based on buildings
-    // const sequence = new Tone.Sequence(
-    //   (time, step) => {
-    //     // Get all houses in the current "column" of the map
-    //     // const housesInStep = getHousesInColumn(map, step);
-    //     // // Convert house positions to notes
-    //     // housesInStep.forEach((house) => {
-    //     //   const note = convertPositionToNote(house.position);
-    //     //   melodySynth.triggerAttackRelease(note, "8n", time);
-    //     // });
-    //     melodySynth?.current?.triggerAttackRelease("C3", 0.1, time);
-    //   },
-    //   Array.from({ length: 8 }, (_, i) => i),
-    //   "8n"
-    // );
-  }, []);
-
-  const analyzeCityLayout = (map: MapType) => {
-    return {
-      reverb: calculateReverbAmount(map),
-    };
-  };
+  const analyzeCityLayout = useCallback(
+    (map: MapType) => {
+      return {
+        reverb: calculateReverbAmount(map),
+      };
+    },
+    [map]
+  );
 
   const startSequencer = () => {
-    Tone.Transport.cancel();
     Tone.Transport.start();
+    Tone.start();
+
     melodySequence.current?.start(0);
     bassSequence.current?.start(0);
   };
@@ -142,53 +133,12 @@ export const useMusicSequencer = () => {
   };
 
   return {
+    initSequencer,
     updateSequence,
     startSequencer,
     stopSequencer,
   };
 };
-
-const slotPriority = [0, 5, 2, 4, 1, 6, 3, 7];
-
-function createSequence(
-  buildings: Building[],
-  octaveRange: [number, number],
-  seedPrefix: string
-) {
-  // First, generate the notes for each building
-  const notes = buildings.map((building) =>
-    randomNote(
-      octaveRange,
-      `${seedPrefix}-${building.position[0]}-${building.position[1]}`
-    )
-  );
-
-  // Create an empty sequence of fixed length
-  const sequenceLength = 8;
-  const sequence = Array(sequenceLength).fill(null);
-
-  // If we have no buildings, return empty sequence
-  if (notes.length === 0) return sequence;
-
-  notes.forEach((note, index) => {
-    sequence[slotPriority.indexOf(index)] = note;
-  });
-
-  return sequence;
-}
-
-function randomNote(octaveRange: [number, number], seed: any) {
-  const rng = seedrandom(seed);
-
-  // Pick a random note from the major scale of C
-  const scale = ["C", "D", "E", "F", "G", "A", "B"];
-  const randomIndex = Math.floor(rng() * scale.length);
-
-  const octave =
-    Math.floor(rng() * (octaveRange[1] - octaveRange[0] + 1)) + octaveRange[0];
-
-  return scale[randomIndex] + octave;
-}
 
 function calculateReverbAmount(map: MapType) {
   const nbParks = map.cells.reduce((total, row) => {

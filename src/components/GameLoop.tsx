@@ -2,8 +2,6 @@ import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "../store/gameStore";
 import React from "react";
 import { MetricsManager } from "../managers/MetricsManager";
-import * as Tone from "tone";
-import { useMusicSequencer } from "../hooks/useMusicSequencer";
 
 type Props = {};
 
@@ -14,9 +12,6 @@ function GameLoop({}: Props) {
   const setMetrics = useGameStore((state) => state.setMetrics);
 
   const lastUpdateRef = React.useRef(0);
-  const isPlaying = useGameStore((state) => state.getIsPlaying());
-
-  const { updateSequence } = useMusicSequencer();
 
   useFrame((state) => {
     const currentTime = state.clock.getElapsedTime() * 1000;
@@ -25,10 +20,6 @@ function GameLoop({}: Props) {
     let buildings = map.buildings;
 
     if (currentTime - lastUpdateRef.current >= 1000) {
-      if (isPlaying) {
-        // updateSequence(map);
-      }
-
       // Update incomes from offices
       // metrics.money = updateIncomes(map, metrics);
 

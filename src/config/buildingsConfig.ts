@@ -9,6 +9,8 @@ export const BUILDINGS_CLASSES = {
   ICE_CREAM: Building,
 };
 
+export type notePlacementType = "random" | "neat";
+
 export interface BuildingConfig {
   price: number[];
   income: number[];
@@ -21,6 +23,7 @@ export interface BuildingConfig {
     radius: number;
     color: string;
   };
+  notePlacement: notePlacementType;
 }
 
 export const BUILDINGS_CONFIG: Record<BuildingType, BuildingConfig> = {
@@ -31,6 +34,7 @@ export const BUILDINGS_CONFIG: Record<BuildingType, BuildingConfig> = {
     income: [0, 0, 0],
     workingCapacity: [0, 0, 0],
     size: 1,
+    notePlacement: "neat",
   },
   OFFICE: {
     price: [500, 200, 300],
@@ -39,6 +43,7 @@ export const BUILDINGS_CONFIG: Record<BuildingType, BuildingConfig> = {
     income: [10, 20, 30],
     workingCapacity: [10, 10, 10],
     size: 2,
+    notePlacement: "neat",
   },
   ICE_CREAM: {
     price: [200, 300, 400],
@@ -52,5 +57,6 @@ export const BUILDINGS_CONFIG: Record<BuildingType, BuildingConfig> = {
       radius: 3,
       color: "blue",
     },
+    notePlacement: "random",
   },
 };

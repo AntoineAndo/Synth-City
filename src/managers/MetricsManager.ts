@@ -25,20 +25,24 @@ export class MetricsManager {
       },
       description: "House metrics",
     },
-    {
-      condition: (building, _, __, ___) => {
-        return building.buildingType === "HOUSE";
-      },
-      action: (building: Building, _: GameMetrics) => {
-        let baseValue = 100;
-        let newValue = baseValue;
-        if (building?.effects?.FUN < 0.5) {
-          newValue = baseValue / 2;
-        }
-        building.happiness = newValue * building.inhabitants;
-      },
-      description: "Happiness from fun",
-    },
+    // {
+    //   condition: (building, _, __, ___) => {
+    //     return building.buildingType === "HOUSE";
+    //   },
+    //   action: (building: Building, _: GameMetrics) => {
+    //     let baseValue = 100;
+    //     let newValue = baseValue;
+    //     if (building?.effects?.FUN < 0.5) {
+    //       newValue = baseValue / 2;
+    //     }
+
+    //     building.happiness =
+    //       newValue *
+    //       (building.inhabitants /
+    //         building.config.inhabitantsCapacity[building.level]);
+    //   },
+    //   description: "Happiness from fun",
+    // },
   ];
 
   private static thresholds: MetricThreshold[] = [

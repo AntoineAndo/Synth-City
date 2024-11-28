@@ -1,4 +1,4 @@
-import { GameStore } from "../store/gameStore";
+import { GameStore, useGameStore } from "../store/gameStore";
 
 export const saveGame = (gameStore: GameStore) => {
   const map = gameStore.getMap();
@@ -19,7 +19,8 @@ export const saveGame = (gameStore: GameStore) => {
   );
 };
 
-export const resetGame = (gameStore: GameStore) => {
+export const resetGame = () => {
+  const gameStore = useGameStore.getState();
   localStorage.removeItem("game");
   gameStore.reset();
 };
