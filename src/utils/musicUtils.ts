@@ -1,6 +1,7 @@
 import seedrandom from "seedrandom";
 import { Building } from "../classes/Building";
 import { MapType } from "../types/map";
+import musicConfig from "../config/musicConfig";
 
 export function generateSeed(s: (string | number)[]): string {
   return s.join("-");
@@ -33,7 +34,7 @@ export function randomNote(
   return scaleConfig[scale][randomIndex] + octave;
 }
 
-const slotPriority = [0, 5, 2, 4, 1, 6, 3, 7];
+const slotPriority = [0, 8, 4, 15, 2, 9, 5, 12, 1, 14, 6, 10, 3, 11, 7, 13];
 
 export function createSequence(
   buildings: Building[],
@@ -43,9 +44,12 @@ export function createSequence(
   const scale = "major";
 
   // Create an empty sequence of fixed length
-  const sequenceLength = 8;
+  const sequenceLength = musicConfig.loopLength;
   const sequence = Array(sequenceLength).fill(null);
-  const emptyIndexes = Array.from({ length: 8 }, (_, index) => index);
+  const emptyIndexes = Array.from(
+    { length: sequenceLength },
+    (_, index) => index
+  );
 
   // First, generate the notes for each building
   // Sort the buildings by their notePlacement priority
