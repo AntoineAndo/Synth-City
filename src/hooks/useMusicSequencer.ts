@@ -8,8 +8,11 @@ export const useMusicSequencer = () => {
   const map = useGameStore((state) => state.getMap());
   const buildings = Object.values(map.buildings);
 
-  const melodySynth = useRef<Tone.Synth | null>(null);
-  const bassSynth = useRef<Tone.MonoSynth | null>(null);
+  const synths = useRef<(Tone.MonoSynth | Tone.Synth)[]>([]);
+  const sequences = useRef<Tone.Sequence[]>([]);
+
+  //   const melodySynth = useRef<Tone.Synth | null>(null);
+  //   const bassSynth = useRef<Tone.MonoSynth | null>(null);
 
   const melodySequence = useRef<Tone.Sequence | null>(null);
   const bassSequence = useRef<Tone.Sequence | null>(null);
@@ -24,8 +27,9 @@ export const useMusicSequencer = () => {
     bassSequence.current?.dispose();
 
     // Dispose all synths
-    melodySynth.current?.dispose();
-    bassSynth.current?.dispose();
+    synths.current.forEach((synth) => {
+      synth.dispose();
+    });
 
     // Dispose all effects
     stereo.current?.dispose();
@@ -35,8 +39,7 @@ export const useMusicSequencer = () => {
     // Reset refs
     melodySequence.current = null;
     bassSequence.current = null;
-    melodySynth.current = null;
-    bassSynth.current = null;
+    synths.current = [];
     stereo.current = null;
     reverb.current = null;
     delay.current = null;
@@ -64,29 +67,23 @@ export const useMusicSequencer = () => {
     reverb.current = new Tone.Freeverb(musicParams.reverb, 100).connect(
       stereo.current
     );
-    delay.current = new Tone.FeedbackDelay("8n", 0.5).connect(reverb.current);
+    delay.current = new Tone.FeedbackDelay("8n", 0.4).connect(reverb.current);
 
-    // Create different instruments
-    melodySynth.current = new Tone.Synth({
-      volume: 10,
-    }).connect(delay.current);
-    bassSynth.current = new Tone.MonoSynth({
-      volume: 1,
-    }).connect(reverb.current);
+    synths.current = musicParams.synths.map((synth) => {
+      return new synth.type({
+        volume: synth.volume,
+      }).connect(delay.current!);
+    });
 
-    console.log("houseSequence", houseSequence);
-    console.log("officeSequence", officeSequence);
-
-    melodySequence.current?.dispose();
-    // Create sequences
-    melodySequence.current = new Tone.Sequence((time, note) => {
-      melodySynth?.current?.triggerAttackRelease(note, 0.5, time);
-    }, houseSequence).start(0);
-
-    bassSequence.current?.dispose();
-    bassSequence.current = new Tone.Sequence((time, note) => {
-      bassSynth?.current?.triggerAttackRelease(note, 0.3, time);
-    }, officeSequence).start(0);
+    synths.current.map((synth, index) => {
+      new Tone.Sequence((time, note) => {
+        synth.triggerAttackRelease(
+          note,
+          musicParams.synths[index].noteLength,
+          time
+        );
+      }, musicParams.synths[index].sequence).start(0);
+    });
   }, [map, cleanup]);
 
   useEffect(() => {
@@ -115,6 +112,20 @@ export const useMusicSequencer = () => {
     (map: MapType) => {
       return {
         reverb: calculateReverbAmount(map),
+        synths: [
+          {
+            volume: 10,
+            type: Tone.Synth,
+            sequence: houseSequence,
+            noteLength: 0.5,
+          },
+          {
+            volume: 1,
+            type: Tone.MonoSynth,
+            sequence: officeSequence,
+            noteLength: 0.2,
+          },
+        ],
       };
     },
     [map]
@@ -124,8 +135,12 @@ export const useMusicSequencer = () => {
     Tone.Transport.start();
     Tone.start();
 
-    melodySequence.current?.start(0);
-    bassSequence.current?.start(0);
+    sequences.current.forEach((sequence) => {
+      sequence.start(0);
+    });
+
+    // melodySequence.current?.start(0);
+    // bassSequence.current?.start(0);
   };
 
   const stopSequencer = () => {
