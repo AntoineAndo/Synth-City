@@ -8,7 +8,7 @@ export const useMusicSequencer = () => {
   const map = useGameStore((state) => state.getMap());
   const buildings = Object.values(map.buildings);
 
-  const synths = useRef<(Tone.MonoSynth | Tone.Synth)[]>([]);
+  const synths = useRef<(Tone.MonoSynth | Tone.Synth | Tone.NoiseSynth)[]>([]);
   const sequences = useRef<Tone.Sequence[]>([]);
 
   //   const melodySynth = useRef<Tone.Synth | null>(null);
@@ -67,21 +67,44 @@ export const useMusicSequencer = () => {
     reverb.current = new Tone.Freeverb(musicParams.reverb, 100).connect(
       stereo.current
     );
-    delay.current = new Tone.FeedbackDelay("8n", 0.4).connect(reverb.current);
+    delay.current = new Tone.FeedbackDelay("8n", 0.2).connect(reverb.current);
 
     synths.current = musicParams.synths.map((synth) => {
-      return new synth.type({
-        volume: synth.volume,
-      }).connect(delay.current!);
+      const newSynth = new synth.type(synth.options);
+
+      if (synth.effects.length > 0) {
+        // Connect last effect to reverb
+        synth.effects[synth.effects.length - 1] = synth.effects[
+          synth.effects.length - 1
+        ].connect(reverb.current!);
+
+        for (let i = 1; i < synth.effects?.length; i++) {
+          synth.effects[i - 1] = synth.effects[i - 1].connect(synth.effects[i]);
+        }
+
+        // Connect first effect to synth
+        newSynth.connect(synth.effects[0]);
+      }
+
+      return newSynth;
     });
 
     synths.current.map((synth, index) => {
       new Tone.Sequence((time, note) => {
-        synth.triggerAttackRelease(
-          note,
-          musicParams.synths[index].noteLength,
-          time
-        );
+        if (synth instanceof Tone.NoiseSynth) {
+          if (note)
+            synth.triggerAttackRelease(
+              musicParams.synths[index].noteLength,
+              time,
+              100
+            );
+        } else {
+          synth.triggerAttackRelease(
+            note,
+            musicParams.synths[index].noteLength,
+            time
+          );
+        }
       }, musicParams.synths[index].sequence).start(0);
     });
   }, [map, cleanup]);
@@ -114,16 +137,54 @@ export const useMusicSequencer = () => {
         reverb: calculateReverbAmount(map),
         synths: [
           {
-            volume: 10,
             type: Tone.Synth,
             sequence: houseSequence,
             noteLength: 0.5,
+            options: {
+              volume: 10,
+            },
+            effects: [],
           },
           {
-            volume: 1,
             type: Tone.MonoSynth,
             sequence: officeSequence,
             noteLength: 0.2,
+            options: {
+              volume: 1,
+            },
+            effects: [],
+          },
+          {
+            type: Tone.NoiseSynth,
+            sequence: [
+              "C2",
+              undefined,
+              undefined,
+              undefined,
+              "C2",
+              undefined,
+              undefined,
+              undefined,
+              "C2",
+              undefined,
+              undefined,
+              undefined,
+              "C2",
+              undefined,
+              undefined,
+              undefined,
+            ],
+            noteLength: 0.2,
+            options: {
+              volume: 1,
+              envelope: {
+                attack: 0.0,
+                decay: 0.03,
+                sustain: 0,
+                release: 1,
+              },
+            },
+            effects: [new Tone.Filter(200, "lowpass")],
           },
         ],
       };
@@ -138,9 +199,6 @@ export const useMusicSequencer = () => {
     sequences.current.forEach((sequence) => {
       sequence.start(0);
     });
-
-    // melodySequence.current?.start(0);
-    // bassSequence.current?.start(0);
   };
 
   const stopSequencer = () => {
