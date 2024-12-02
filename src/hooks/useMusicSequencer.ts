@@ -63,11 +63,11 @@ export const useMusicSequencer = () => {
     const musicParams = analyzeCityLayout(map);
 
     // Create effects that we'll modulate
-    stereo.current = new Tone.StereoWidener(1).toDestination();
+    stereo.current = new Tone.StereoWidener(0.3).toDestination();
     reverb.current = new Tone.Freeverb(musicParams.reverb, 100).connect(
       stereo.current
     );
-    delay.current = new Tone.FeedbackDelay("8n", 0.2).connect(reverb.current);
+    // delay.current = new Tone.FeedbackDelay("8n", 0.2).connect(reverb.current);
 
     synths.current = musicParams.synths.map((synth) => {
       const newSynth = new synth.type(synth.options);
@@ -84,6 +84,8 @@ export const useMusicSequencer = () => {
 
         // Connect first effect to synth
         newSynth.connect(synth.effects[0]);
+      } else {
+        newSynth.connect(reverb.current!);
       }
 
       return newSynth;
@@ -143,14 +145,15 @@ export const useMusicSequencer = () => {
             options: {
               volume: 10,
             },
-            effects: [],
+            effects: [new Tone.FeedbackDelay("8n.", 0.6)],
           },
           {
-            type: Tone.MonoSynth,
+            type: Tone.PluckSynth,
             sequence: officeSequence,
             noteLength: 0.2,
             options: {
               volume: 1,
+              attackNoise: 1,
             },
             effects: [],
           },
@@ -159,19 +162,19 @@ export const useMusicSequencer = () => {
             sequence: [
               "C2",
               undefined,
-              undefined,
+              "C2",
               undefined,
               "C2",
               undefined,
-              undefined,
+              "C2",
               undefined,
               "C2",
               undefined,
-              undefined,
+              "C2",
               undefined,
               "C2",
               undefined,
-              undefined,
+              "C2",
               undefined,
             ],
             noteLength: 0.2,
@@ -181,10 +184,10 @@ export const useMusicSequencer = () => {
                 attack: 0.0,
                 decay: 0.03,
                 sustain: 0,
-                release: 1,
+                release: 0,
               },
             },
-            effects: [new Tone.Filter(200, "lowpass")],
+            effects: [new Tone.Filter(100, "lowpass")],
           },
         ],
       };
