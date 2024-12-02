@@ -21,14 +21,21 @@ export const useMusicSequencer = () => {
   const reverb = useRef<Tone.Freeverb | null>(null);
   const delay = useRef<Tone.FeedbackDelay | null>(null);
 
+  const musicParams = useRef<{
+    reverb: number;
+    synths: any[];
+  } | null>(null);
+
   const cleanup = useCallback(() => {
     // Dispose all sequences
     melodySequence.current?.dispose();
     bassSequence.current?.dispose();
 
-    // Dispose all synths
-    synths.current.forEach((synth) => {
-      synth.dispose();
+    musicParams.current?.synths.forEach((synth) => {
+      synth.synth.dispose();
+      synth.effects.forEach((effect: any) => {
+        effect.dispose();
+      });
     });
 
     // Dispose all effects
@@ -60,35 +67,36 @@ export const useMusicSequencer = () => {
     cleanup();
 
     Tone.Transport.bpm.value = 100;
-    const musicParams = analyzeCityLayout(map);
+    musicParams.current = analyzeCityLayout(map);
 
     // Create effects that we'll modulate
     stereo.current = new Tone.StereoWidener(0.3).toDestination();
-    reverb.current = new Tone.Freeverb(musicParams.reverb, 100).connect(
-      stereo.current
-    );
+    reverb.current = new Tone.Freeverb(
+      musicParams.current!.reverb,
+      100
+    ).connect(stereo.current);
     // delay.current = new Tone.FeedbackDelay("8n", 0.2).connect(reverb.current);
 
-    synths.current = musicParams.synths.map((synth) => {
-      const newSynth = new synth.type(synth.options);
+    synths.current = musicParams.current!.synths.map(({ synth, effects }) => {
+      //   const newSynth = new synth.type(synth.options);
 
-      if (synth.effects.length > 0) {
+      if (effects.length > 0) {
         // Connect last effect to reverb
-        synth.effects[synth.effects.length - 1] = synth.effects[
-          synth.effects.length - 1
-        ].connect(reverb.current!);
+        effects[effects.length - 1] = effects[effects.length - 1].connect(
+          reverb.current!
+        );
 
-        for (let i = 1; i < synth.effects?.length; i++) {
-          synth.effects[i - 1] = synth.effects[i - 1].connect(synth.effects[i]);
+        for (let i = 1; i < effects?.length; i++) {
+          effects[i - 1] = effects[i - 1].connect(effects[i]);
         }
 
         // Connect first effect to synth
-        newSynth.connect(synth.effects[0]);
+        synth.connect(effects[0]);
       } else {
-        newSynth.connect(reverb.current!);
+        synth.connect(reverb.current!);
       }
 
-      return newSynth;
+      return synth;
     });
 
     synths.current.map((synth, index) => {
@@ -96,18 +104,18 @@ export const useMusicSequencer = () => {
         if (synth instanceof Tone.NoiseSynth) {
           if (note)
             synth.triggerAttackRelease(
-              musicParams.synths[index].noteLength,
+              musicParams.current!.synths[index].noteLength,
               time,
               100
             );
         } else {
           synth.triggerAttackRelease(
             note,
-            musicParams.synths[index].noteLength,
+            musicParams.current!.synths[index].noteLength,
             time
           );
         }
-      }, musicParams.synths[index].sequence).start(0);
+      }, musicParams.current!.synths[index].sequence).start(0);
     });
   }, [map, cleanup]);
 
@@ -139,26 +147,31 @@ export const useMusicSequencer = () => {
         reverb: calculateReverbAmount(map),
         synths: [
           {
-            type: Tone.Synth,
+            synth: new Tone.Synth({
+              volume: 10,
+            }),
             sequence: houseSequence,
             noteLength: 0.5,
-            options: {
-              volume: 10,
-            },
             effects: [new Tone.FeedbackDelay("8n.", 0.6)],
           },
           {
-            type: Tone.PluckSynth,
+            synth: new Tone.MonoSynth({
+              volume: 1,
+            }),
             sequence: officeSequence,
             noteLength: 0.2,
-            options: {
-              volume: 1,
-              attackNoise: 1,
-            },
             effects: [],
           },
           {
-            type: Tone.NoiseSynth,
+            synth: new Tone.NoiseSynth({
+              volume: 1,
+              envelope: {
+                attack: 0.0,
+                decay: 0.03,
+                sustain: 0,
+                release: 0,
+              },
+            }),
             sequence: [
               "C2",
               undefined,
@@ -178,15 +191,6 @@ export const useMusicSequencer = () => {
               undefined,
             ],
             noteLength: 0.2,
-            options: {
-              volume: 1,
-              envelope: {
-                attack: 0.0,
-                decay: 0.03,
-                sustain: 0,
-                release: 0,
-              },
-            },
             effects: [new Tone.Filter(100, "lowpass")],
           },
         ],
