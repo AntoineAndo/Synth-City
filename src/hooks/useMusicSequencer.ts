@@ -69,6 +69,8 @@ export const useMusicSequencer = () => {
     Tone.Transport.bpm.value = 100;
     musicParams.current = analyzeCityLayout(map);
 
+    console.log(musicParams.current);
+
     // Create effects that we'll modulate
     stereo.current = new Tone.StereoWidener(0.3).toDestination();
     reverb.current = new Tone.Freeverb(
@@ -101,20 +103,11 @@ export const useMusicSequencer = () => {
 
     synths.current.map((synth, index) => {
       new Tone.Sequence((time, note) => {
-        if (synth instanceof Tone.NoiseSynth) {
-          if (note)
-            synth.triggerAttackRelease(
-              musicParams.current!.synths[index].noteLength,
-              time,
-              100
-            );
-        } else {
-          synth.triggerAttackRelease(
-            note,
-            musicParams.current!.synths[index].noteLength,
-            time
-          );
-        }
+        musicParams.current!.synths[index].playNote(synth, {
+          note,
+          length: musicParams.current!.synths[index].noteLength,
+          time,
+        });
       }, musicParams.current!.synths[index].sequence).start(0);
     });
   }, [map, cleanup]);
@@ -153,6 +146,16 @@ export const useMusicSequencer = () => {
             sequence: houseSequence,
             noteLength: 0.5,
             effects: [new Tone.FeedbackDelay("8n.", 0.6)],
+            playNote: (
+              synth: Tone.Synth,
+              {
+                note,
+                length,
+                time,
+              }: { note: string; length: number; time: number }
+            ) => {
+              synth.triggerAttackRelease(note, length, time);
+            },
           },
           {
             synth: new Tone.MonoSynth({
@@ -161,6 +164,16 @@ export const useMusicSequencer = () => {
             sequence: officeSequence,
             noteLength: 0.2,
             effects: [],
+            playNote: (
+              synth: Tone.MonoSynth,
+              {
+                note,
+                length,
+                time,
+              }: { note: string; length: number; time: number }
+            ) => {
+              synth.triggerAttackRelease(note, length, time);
+            },
           },
           {
             synth: new Tone.NoiseSynth({
@@ -172,22 +185,32 @@ export const useMusicSequencer = () => {
                 release: 0,
               },
             }),
+            playNote: (
+              synth: Tone.NoiseSynth,
+              {
+                note,
+                length,
+                time,
+              }: { note: string; length: number; time: number }
+            ) => {
+              synth.triggerAttackRelease(length, time, 50);
+            },
             sequence: [
               "C2",
               undefined,
-              "C2",
+              undefined,
               undefined,
               "C2",
               undefined,
-              "C2",
+              undefined,
               undefined,
               "C2",
               undefined,
-              "C2",
+              undefined,
               undefined,
               "C2",
               undefined,
-              "C2",
+              undefined,
               undefined,
             ],
             noteLength: 0.2,
